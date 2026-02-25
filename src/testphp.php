@@ -152,6 +152,3 @@ $isWebAccess = true; // Siempre mostrar dashboard web
     </div>
 </body>
 </html>
-    <?php
-}
-?>
