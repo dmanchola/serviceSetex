@@ -91,7 +91,7 @@ $isWebAccess = true; // Siempre mostrar dashboard web
                 'setex-config.php' => file_exists('setex-config.php'),
                 'servicio.class.php' => file_exists('servicio.class.php'),
                 'conexion.class.php' => file_exists('conexion.class.php'),
-                'connect.php' => file_exists('connect.php'),
+                'env-loader.php' => file_exists('env-loader.php'),
                 'watchdog.php' => file_exists('watchdog.php'),
                 'libs/nusoap/lib/nusoap.php' => file_exists('../libs/nusoap/lib/nusoap.php') || file_exists('libs/nusoap/lib/nusoap.php')
             ];
