@@ -345,6 +345,11 @@ function getVersion() {
 function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 		$tiempoParqueo="",$importeParqueo="",$password="",
 		$fechaInicioParqueo="",$fechaFinParqueo="",$nroTransaccion="",$fechaTransaccion=""){
+	
+	// LOG INMEDIATO para debug
+	$debugLog = '../logs/iniciarParqueo_debug_' . date('Y-m-d') . '.txt';
+	file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] === FUNCIÓN iniciarParqueo INICIADA ===\n", FILE_APPEND | LOCK_EX);
+	
 	$parametros=array();
 	$parametros['token']=$token;
 	$parametros['plazaId']=$plazaId;
@@ -358,6 +363,9 @@ function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 	#PAGO TC
 	$parametros['nroTransaccion']=$nroTransaccion;
 	$parametros['fechaTransaccion']=$fechaTransaccion;
+	
+	// LOG de parámetros recibidos
+	file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] Parámetros recibidos: " . json_encode($parametros) . "\n", FILE_APPEND | LOCK_EX);
 
 	$enableLog = SetexEnvLoader::getBool('SETEX_LOG_ENABLED', false); // Configurable desde .env
 
@@ -380,8 +388,26 @@ function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 		}
 	}
 
-	$obj = new Servicio();
-	return $obj->iniciarParqueoSetex($parametros);
+	try {
+		file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] Creando instancia de Servicio...\n", FILE_APPEND | LOCK_EX);
+		$obj = new Servicio();
+		
+		file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] Ejecutando iniciarParqueoSetex...\n", FILE_APPEND | LOCK_EX);
+		$result = $obj->iniciarParqueoSetex($parametros);
+		
+		file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] Resultado: " . json_encode($result) . "\n", FILE_APPEND | LOCK_EX);
+		
+		return $result;
+	} catch (Exception $e) {
+		file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] ❌ EXCEPCIÓN: " . $e->getMessage() . "\n", FILE_APPEND | LOCK_EX);
+		file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] ❌ Archivo: " . $e->getFile() . "\n", FILE_APPEND | LOCK_EX);
+		file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] ❌ Línea: " . $e->getLine() . "\n", FILE_APPEND | LOCK_EX);
+		
+		// Retornar error controlado
+		$errorObj = new stdClass();
+		$errorObj->codigoRespuesta = "ERROR: " . $e->getMessage();
+		return $errorObj;
+	}
 }
 
 
