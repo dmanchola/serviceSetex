@@ -1,7 +1,7 @@
 <?php
 // SETEX SOAP Web Service - Compatible con servicio original
 error_reporting(E_ALL ^ E_DEPRECATED); // Suprimir warnings de nuSOAP legacy
-ini_set('display_errors', '0'); // No mostrar errores en producción
+ini_set('display_errors', '1'); // TEMPORAL: Mostrar errores para debugging
 
 include_once('setex-config.php');
 require_once(LIBSPATH . 'nusoap/lib/nusoap.php');
@@ -23,7 +23,7 @@ try {
 
 	// Configuración para PHP 8
 	$server->soap_defencoding = 'UTF-8';
-	$server->debug_flag = false; // Desactivar debug en producción
+	$server->debug_flag = true; // TEMPORAL: Activar debug para ver errores
 
 	$server->wsdl->addComplexType('codigoRespuestaComplex',
 			'complexType',
