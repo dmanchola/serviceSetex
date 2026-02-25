@@ -25,8 +25,18 @@ Class watchDog {
      * @param string $logws_file
      */
     static function writeLogFile($logws_type, $logws_text, $logws_line, $logws_file, $file) {
+        // Cargar el loader de .env si no se ha hecho
+        if (!getenv('SETEX_LOGS_PATH') && file_exists('env-loader.php')) {
+            try {
+                require_once('env-loader.php');
+                SetexEnvLoader::load();
+            } catch (Exception $e) {
+                // Ignorar errores de carga, usar fallback
+            }
+        }
+        
         // Usar configuración del .env si está disponible
-        $logsPath = getenv('SETEX_LOGS_PATH') ?: '../logs';
+        $logsPath = getenv('SETEX_LOGS_PATH') ?: './logs';
         // Asegurar que termine con /
         $logsPath = rtrim($logsPath, '/') . '/';
         
@@ -34,19 +44,23 @@ Class watchDog {
         $logws_text.=" Archivo:" . $logws_file . " Linea:" . $logws_line . " Fecha:" . date("Y-m-d h:i:s") . "\n";
 
         try {
-            // Crear directorio si no existe
+            // Crear directorio si no existe  
             if (!is_dir($logsPath)) {
-                mkdir($logsPath, 0777, true);
+                @mkdir($logsPath, 0777, true);
             }
             
-            if (file_exists($logsPath.$filename)) {
-              $myfile = fopen($logsPath.$filename, "a") or die("Unable to open file!");
-              fwrite($myfile, $logws_text);
-              fclose($myfile);
-            } else {
-              $myfile = fopen($logsPath.$filename, "w") or die("Unable to open file!");
-              fwrite($myfile, $logws_text);
-              fclose($myfile);
+            $fullPath = $logsPath . $filename;
+            if (is_writable(dirname($fullPath))) {
+                if (file_exists($fullPath)) {
+                  $myfile = fopen($fullPath, "a");
+                } else {
+                  $myfile = fopen($fullPath, "w");
+                }
+                
+                if ($myfile) {
+                    fwrite($myfile, $logws_text);
+                    fclose($myfile);
+                }
             }
 
         } catch (Exception $e) {
