@@ -80,7 +80,7 @@ $isWebAccess = true; // Siempre mostrar dashboard web
             foreach ($extensionsCheck as $ext => $loaded):
             ?>
             <div class="status <?php echo $loaded ? 'ok' : 'error'; ?>">
-                <strong>Extensión <?php echo strtoupper($ext):</strong> 
+                <strong>Extensión <?php echo strtoupper($ext); ?>:</strong> 
                 <?php echo $loaded ? '✓ Cargada' : '❌ No disponible'; ?>
             </div>
             <?php endforeach; ?>

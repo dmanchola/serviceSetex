@@ -8,7 +8,7 @@
 sudo apt update && sudo apt upgrade -y
 
 # Instalar Apache + PHP + Extensiones
-sudo apt install apache2 php8.3 php8.3-apache2 php8.3-mysqli php8.3-soap php8.3-xml php8.3-simplexml php8.3-curl php8.3-json php8.3-mbstring git -y
+sudo apt install apache2 php8.3 libapache2-mod-php8.3 php8.3-mysql php8.3-soap php8.3-xml php8.3-curl php8.3-mbstring git -y
 
 # Configurar Apache
 sudo a2enmod rewrite php8.3
@@ -99,8 +99,8 @@ ENVIRONMENT="development"
 ### **5️⃣ Verificar Instalación**
 ```bash
 # Probar servicio
-curl http://tu-ip-publica/serviceSetex/src/testphp.php
-curl http://tu-ip-publica/serviceSetex/src/setex-wsdl.php?wsdl
+curl http://54.187.87.75/serviceSetex/src/testphp.php
+curl http://54.187.87.75/serviceSetex/src/setex-wsdl.php?wsdl
 ```
 
 ### **6️⃣ Configuración Avanzada (Opcional)**
