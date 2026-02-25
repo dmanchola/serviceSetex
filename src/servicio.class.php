@@ -8,6 +8,7 @@ ini_set('error_reporting', E_ALL);
 include_once("setex-config.php");
 require_once("conexion.class.php");
 require_once("watchdog.php");
+require_once("env-loader.php");
 
 class Servicio {
 
@@ -358,7 +359,7 @@ function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 	$parametros['nroTransaccion']=$nroTransaccion;
 	$parametros['fechaTransaccion']=$fechaTransaccion;
 
-	$enableLog = false; // Mantener comportamiento original por defecto
+	$enableLog = SetexEnvLoader::getBool('SETEX_LOG_ENABLED', false); // Configurable desde .env
 
 	if ($enableLog) {
 		watchDog::logInfo('Parámetros recibidos en iniciarParqueo', $parametros, 'iniciarParqueo');

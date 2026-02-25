@@ -173,39 +173,76 @@ Usar: http://tu-servidor/serviceSetex/test-client.php
 Beneficios: Testing automático, detección de entorno
 ```
 
-## 📝 **Variables de Entorno Útiles**
+## 📝 **Variables de Entorno (.env)**
 
+El proyecto ahora usa un archivo `.env` para configuración:
+
+### **Archivo .env de Ejemplo:**
 ```bash
-# URL personalizada del servicio
-export SETEX_SERVICE_URL="http://mi-servidor.com/setex/src/testphp.php"
+# Servidor y URLs
+SETEX_SERVER_HOST="52.39.146.172"
+SETEX_PROTOCOL="http"  
+SETEX_SERVICE_URL="http://52.39.146.172/serviceSetex/src/setex-wsdl.php"
 
-# Activar debug mode
-export SETEX_DEBUG="true"
+# Base de Datos
+DB_HOST="alpha-msj-db-server-dev.celntjvopzqm.us-west-2.rds.amazonaws.com"
+DB_USER="userAlphaMsj"
+DB_PASS="alpha2000@"
+DB_NAME="alpha_msj"
+DB_PORT="3306"
 
-# Configuración de base de datos
-export DB_HOST="mi-rds-endpoint.amazonaws.com"
-export DB_USER="mi_usuario"
-export DB_PASS="mi_password"
-
-# Configuración del servidor
-export SETEX_SERVER_HOST="mi-dominio.com"
-export SETEX_PROTOCOL="https"
+# Configuración
+SETEX_DEBUG="false"
+SETEX_LOG_ENABLED="false"
+ENVIRONMENT="production"
 ```
 
-## 🎯 **Testing Rápido**
+### **Configuración por Entorno:**
 
-### **Verificar Disponibilidad**
+**🏠 Desarrollo Local:**
 ```bash
-curl http://tu-servidor/serviceSetex/src/testphp.php
+SETEX_SERVER_HOST="localhost"
+SETEX_DEBUG="true"
+SETEX_LOG_ENABLED="true"
+ENVIRONMENT="development"
 ```
 
-### **Obtener WSDL**
+**☁️ Producción EC2:**
 ```bash
-curl http://tu-servidor/serviceSetex/src/testphp.php?wsdl
+SETEX_SERVER_HOST="tu-ip-publica"
+SETEX_DEBUG="false"
+SETEX_LOG_ENABLED="false"
+ENVIRONMENT="production"
 ```
 
-### **Test Automático**
+## 📋 **Instalación Rápida**
+
+### **1️⃣ Instalar en Ubuntu 24**
 ```bash
+# Instalar dependencias
+sudo apt update && sudo apt install apache2 php8.3 php8.3-mysqli php8.3-soap git -y
+
+# Clonar proyecto
+cd /var/www/html
+sudo git clone https://github.com/tu-usuario/tu-repositorio.git serviceSetex
+cd serviceSetex
+
+# Configurar .env
+sudo cp .env.example .env
+sudo nano .env  # Personalizar configuración
+
+# Configurar permisos
+sudo chown -R www-data:www-data .
+sudo chmod -R 755 .
+sudo chmod -R 777 logs/
+```
+
+### **2️⃣ Testing Rápido**
+```bash
+# Verificar servicio
+curl http://tu-ip/serviceSetex/src/testphp.php
+
+# Test automático
 php test-client.php
 ```
 

@@ -1,8 +1,13 @@
 <?php
 /**
  * Cliente de prueba para los servicios web SETEX
- * Incluye manejo mejorado de errores y logs
+ * Compatible con archivo .env para configuración
  */
+
+// Cargar configuración desde .env si está disponible
+if (file_exists(__DIR__ . '/src/env-loader.php')) {
+    require_once(__DIR__ . '/src/env-loader.php');
+}
 
 require_once('libs/nusoap/nusoap.php');
 require_once('src/watchdog.php');
@@ -331,7 +336,15 @@ class SetexClientTest {
 if (basename(__FILE__) === basename($_SERVER['SCRIPT_NAME'])) {
     // Detección automática de entorno y URL
     function detectServiceUrl() {
-        // Prioridad 1: Variable de entorno
+        // Prioridad 1: Variable de entorno desde .env
+        if (class_exists('SetexEnvLoader')) {
+            $envUrl = SetexEnvLoader::get('SETEX_SERVICE_URL');
+            if ($envUrl) {
+                return rtrim($envUrl, '/');
+            }
+        }
+        
+        // Prioridad 2: Variable de entorno del sistema
         $envUrl = getenv('SETEX_SERVICE_URL');
         if ($envUrl) {
             return rtrim($envUrl, '/');
