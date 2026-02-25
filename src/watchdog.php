@@ -147,6 +147,4 @@ Class watchDog {
     }
 }
 
-}
-
 ?>
