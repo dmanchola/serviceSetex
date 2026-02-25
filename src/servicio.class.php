@@ -358,25 +358,25 @@ function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 	$parametros['nroTransaccion']=$nroTransaccion;
 	$parametros['fechaTransaccion']=$fechaTransaccion;
 
-	$enableLog = true; // Habilitamos los logs por defecto para mejor debugging
+	$enableLog = false; // Mantener comportamiento original por defecto
 
 	if ($enableLog) {
 		watchDog::logInfo('Parámetros recibidos en iniciarParqueo', $parametros, 'iniciarParqueo');
-	}
-	
-	// Validación adicional de parámetros críticos
-	if (empty($parametros['token'])) {
-		watchDog::logWarning('Token vacío o no proporcionado', $parametros, 'iniciarParqueo');
-	}
-	
-	if (empty($parametros['identificador'])) {
-		watchDog::logWarning('Identificador vacío o no proporcionado', $parametros, 'iniciarParqueo');
-	}
-	
-	if ($parametros['tiempoParqueo'] <= 0) {
-		watchDog::logWarning('Tiempo de parqueo inválido', [
-			'tiempo_parqueo' => $parametros['tiempoParqueo']
-		], 'iniciarParqueo');
+		
+		// Validación adicional de parámetros críticos
+		if (empty($parametros['token'])) {
+			watchDog::logWarning('Token vacío o no proporcionado', $parametros, 'iniciarParqueo');
+		}
+		
+		if (empty($parametros['identificador'])) {
+			watchDog::logWarning('Identificador vacío o no proporcionado', $parametros, 'iniciarParqueo');
+		}
+		
+		if ($parametros['tiempoParqueo'] <= 0) {
+			watchDog::logWarning('Tiempo de parqueo inválido', [
+				'tiempo_parqueo' => $parametros['tiempoParqueo']
+			], 'iniciarParqueo');
+		}
 	}
 
 	$obj = new Servicio();

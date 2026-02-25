@@ -329,22 +329,149 @@ class SetexClientTest {
 
 // Ejemplo de uso
 if (basename(__FILE__) === basename($_SERVER['SCRIPT_NAME'])) {
-    // Configuración
-    $serviceUrl = 'http://localhost:8080/src/tu-archivo-servicio.php';
+    // Detección automática de entorno y URL
+    function detectServiceUrl() {
+        // Prioridad 1: Variable de entorno
+        $envUrl = getenv('SETEX_SERVICE_URL');
+        if ($envUrl) {
+            return rtrim($envUrl, '/');
+        }
+        
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' 
+                    || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+        
+        // En CLI, probar múltiples opciones
+        if (php_sapi_name() === 'cli') {
+            $cliOptions = [
+                'http://localhost/setex/src/setex-wsdl.php',     // PRINCIPAL - Nombre original
+                'http://localhost/src/setex-wsdl.php',          // Local principal
+                'http://localhost:8080/src/setex-wsdl.php',     // Docker principal
+                'http://localhost/setex/src/testphp.php',       // Dashboard/diagnóstico
+                'http://localhost/src/testphp.php'             // Local diagnóstico
+            ];
+            
+            // Probar cada opción
+            foreach ($cliOptions as $url) {
+                if (@get_headers($url)) {
+                    return $url;
+                }
+            }
+            
+            // Fallback CLI
+            return 'http://localhost/src/testphp.php';
+        }
+        
+        // En web, construir basado en el contexto actual
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $currentPath = dirname($_SERVER['REQUEST_URI'] ?? '/');
+        
+        // Rutas a probar según el entorno
+        $webOptions = [
+            $currentPath . '/src/setex-wsdl.php',         // PRINCIPAL - Nombre original
+            '/setex/src/setex-wsdl.php',                 // Path absoluto EC2 principal
+            $currentPath . '/src/testphp.php',            // Dashboard/diagnóstico
+            '/setex/src/testphp.php'                     // EC2 diagnóstico
+        ];
+        
+        // Probar cada ruta
+        foreach ($webOptions as $path) {
+            $url = $protocol . $host . $path;
+            // Verificar si la URL responde (simplificado para evitar timeouts)
+            $headers = @get_headers($url, 1);
+            if ($headers && strpos($headers[0], '200') !== false) {
+                return $url;
+            }
+        }
+        
+        // URL por defecto - MANTENER ARQUITECTURA ORIGINAL
+        return $protocol . $host . '/src/setex-wsdl.php';
+    }
+    
+    // Configuración automática
+    $serviceUrl = detectServiceUrl();
+    
+    // Mostrar información del entorno
+    $isWeb = php_sapi_name() !== 'cli';
+    $environment = '';
+    
+    if (getenv('AWS_REGION')) {
+        $environment = '☁️ AWS EC2';
+    } elseif (file_exists('/.dockerenv')) {
+        $environment = '🐳 Docker';
+    } else {
+        $environment = '💻 Local';
+    }
+    
+    if ($isWeb) {
+        echo "<h1>🧪 SETEX - Cliente de Prueba</h1>";
+        echo "<h2>$environment</h2>";
+        echo "<p><strong>URL del servicio:</strong> $serviceUrl</p>";
+        echo "<hr>";
+        echo "<pre>";
+    } else {
+        echo "🚀 SETEX - Cliente de Prueba ($environment)\n";
+        echo "URL del servicio: $serviceUrl\n\n";
+    }
     
     try {
-        echo "🚀 Iniciando cliente de prueba SETEX\n\n";
-        
         $testClient = new SetexClientTest($serviceUrl);
         $results = $testClient->runFullTest();
         
-        echo "\n✅ Pruebas completadas. Revisa los logs para más detalles.\n";
+        if ($isWeb) {
+            echo "\n</pre>";
+            echo "<hr>";
+            echo "<h3>✅ Pruebas completadas</h3>";
+            echo "<p>Revisa los logs en el directorio <code>logs/</code> para más detalles.</p>";
+            
+            // Mostrar enlaces útiles en modo web
+            echo "<h3>🔗 Enlaces Útiles:</h3>";
+            echo "<ul>";
+            echo "<li><a href='check-php8.php' target='_blank'>🔍 Verificación PHP 8</a></li>";
+            echo "<li><a href='src/servicio.php?wsdl' target='_blank'>📋 WSDL del Servicio</a></li>";
+            echo "<li><a href='docs/como-probar.md' target='_blank'>📖 Documentación</a></li>";
+            echo "</ul>";
+            
+            // Información adicional para EC2
+            if ($environment === '☁️ AWS EC2') {
+                echo "<h3>💡 EC2 Info:</h3>";
+                echo "<ul>";
+                echo "<li>Verificar Security Groups para puerto 80</li>";
+                echo "<li>Configurar variables de entorno si es necesario</li>";
+                echo "<li>Revisar logs: <code>/var/www/html/logs/</code></li>";
+                echo "</ul>";
+            }
+        } else {
+            echo "\n✅ Pruebas completadas. Revisa los logs para más detalles.\n";
+        }
         
     } catch (Exception $e) {
-        echo "❌ Error fatal: " . $e->getMessage() . "\n";
+        $errorMsg = "❌ Error fatal: " . $e->getMessage();
+        
+        if ($isWeb) {
+            echo "\n</pre>";
+            echo "<div style='color: red; border: 1px solid red; padding: 10px; background: #ffeeee;'>";
+            echo "<h3>❌ Error Fatal</h3>";
+            echo "<p>" . htmlspecialchars($e->getMessage()) . "</p>";
+            echo "<h4>🔧 Troubleshooting:</h4>";
+            echo "<ul>";
+            echo "<li>Verificar que el archivo <code>src/servicio.php</code> existe</li>";
+            echo "<li>Verificar conexión a base de datos</li>";
+            echo "<li>Revisar logs de errores del servidor</li>";
+            echo "<li>Verificar configuración de nuSOAP</li>";
+            echo "</ul>";
+            echo "</div>";
+        } else {
+            echo "$errorMsg\n";
+            echo "\n🔧 Troubleshooting:\n";
+            echo "   - Verificar archivo src/servicio.php\n";
+            echo "   - Probar conexión BD: php src/connect.php\n";
+            echo "   - Revisar logs de Apache\n";
+        }
+        
         watchDog::logError('Error fatal en cliente de prueba', [
             'error_message' => $e->getMessage(),
-            'service_url' => $serviceUrl
+            'service_url' => $serviceUrl,
+            'environment' => $environment
         ], 'client_test');
     }
 }
