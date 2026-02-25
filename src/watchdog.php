@@ -25,16 +25,26 @@ Class watchDog {
      * @param string $logws_file
      */
     static function writeLogFile($logws_type, $logws_text, $logws_line, $logws_file, $file) {
+        // Usar configuración del .env si está disponible
+        $logsPath = getenv('SETEX_LOGS_PATH') ?: '../logs';
+        // Asegurar que termine con /
+        $logsPath = rtrim($logsPath, '/') . '/';
+        
         $filename = $file . date("Y-m-d") . '.txt';
         $logws_text.=" Archivo:" . $logws_file . " Linea:" . $logws_line . " Fecha:" . date("Y-m-d h:i:s") . "\n";
 
         try {
-            if (file_exists("../logs/".$filename)) {
-              $myfile = fopen("../logs/".$filename, "a") or die("Unable to open file!");
+            // Crear directorio si no existe
+            if (!is_dir($logsPath)) {
+                mkdir($logsPath, 0777, true);
+            }
+            
+            if (file_exists($logsPath.$filename)) {
+              $myfile = fopen($logsPath.$filename, "a") or die("Unable to open file!");
               fwrite($myfile, $logws_text);
               fclose($myfile);
             } else {
-              $myfile = fopen("../logs/".$filename, "w") or die("Unable to open file!");
+              $myfile = fopen($logsPath.$filename, "w") or die("Unable to open file!");
               fwrite($myfile, $logws_text);
               fclose($myfile);
             }
