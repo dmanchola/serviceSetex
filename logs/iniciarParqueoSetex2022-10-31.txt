@@ -1,0 +1,2 @@
+Validacion de Parametros6 Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:126 Fecha:2022-10-31 09:02:17
+Validacion de Parametros6 Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:126 Fecha:2022-10-31 12:45:35

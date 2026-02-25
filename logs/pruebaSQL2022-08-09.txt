@@ -1,0 +1,214 @@
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta'.'450','1193251597','200','2022-08-09 11:54:33') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 12:54:55
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta'.'450','1193251615','200','2022-08-09 11:54:38') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 12:55:07
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta'.'450','1193251626','200','2022-08-09 11:54:49') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 12:55:12
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta'.'450','1193251653','200','2022-08-09 11:55:12') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 12:55:29
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta'.'450','1193251730','200','2022-08-09 11:55:44') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 12:56:22
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','2','0','5','Parquimetro','Tarjeta'.'680','1193251763','200','2022-08-09 11:56:17') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 12:56:37
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta'.'900','1193251800','200','2022-08-09 11:55:31') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 12:56:57
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','2','0','5','Parquimetro','Tarjeta'.'680','1193251810','200','2022-08-09 11:56:35') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 12:57:04
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','900','1193251844','200','2022-08-09 11:56:53') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 12:57:24
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','450','1193251938','200','2022-08-09 11:58:03') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 12:58:21
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','900','1193251950','200','2022-08-09 11:58:08') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 12:58:32
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','450','1193252279','200','2022-08-09 12:00:40') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:00:59
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','900','1193252333','200','2022-08-09 12:00:47') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:01:15
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','450','1193252339','200','2022-08-09 12:01:04') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:01:21
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','450','1193252370','200','2022-08-09 12:01:24') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:01:44
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','450','1193252414','200','2022-08-09 12:01:53') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:02:19
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','450','1193252463','200','2022-08-09 12:02:30') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:02:50
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1350','1193252626','200','2022-08-09 12:03:27') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:04:31
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','450','1193252739','200','2022-08-09 12:04:55') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:05:14
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','900','1193252759','200','2022-08-09 12:04:55') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:05:29
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1050','1193252801','200','2022-08-09 12:03:37') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:06:06
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1650','1193252807','200','2022-08-09 12:03:41') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:06:09
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193252923','450','2022-08-09 12:07:17') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:07:34
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','3','0','5','Parquimetro','Tarjeta','1193252955','375','2022-08-09 12:07:38') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:07:55
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193252981','450','2022-08-09 12:05:44') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:08:10
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193252991','450','2022-08-09 12:07:51') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:08:15
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253023','1350','2022-08-09 12:08:13') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:08:36
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253025','450','2022-08-09 12:08:18') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:08:36
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253040','450','2022-08-09 12:08:19') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:08:50
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','3','0','5','Parquimetro','Tarjeta','1193253188','375','2022-08-09 12:10:21') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:10:39
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253230','450','2022-08-09 12:10:51') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:11:11
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253262','900','2022-08-09 12:11:11') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:11:34
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','3','0','5','Parquimetro','Tarjeta','1193253362','750','2022-08-09 12:12:16') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:12:49
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253405','1350','2022-08-09 12:12:53') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:13:13
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','3','0','5','Parquimetro','Tarjeta','1193253457','375','2022-08-09 12:13:35') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:13:51
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253524','1350','2022-08-09 12:14:17') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:14:36
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','3','0','5','Parquimetro','Tarjeta','1193253457','375','2022-08-09 12:13:35') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:15:11
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253524','1350','2022-08-09 12:14:17') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:15:56
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253624','1350','2022-08-09 12:15:33') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:15:58
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','3','0','5','Parquimetro','Tarjeta','1193253659','750','2022-08-09 12:15:20') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:16:27
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','3','0','5','Parquimetro','Tarjeta','1193253457','375','2022-08-09 12:13:35') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:16:28
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','3','0','5','Parquimetro','Tarjeta','1193253662','750','2022-08-09 12:16:12') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:16:29
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253689','450','2022-08-09 12:16:33') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:16:56
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253695','1350','2022-08-09 12:16:26') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:17:01
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','2','0','5','Parquimetro','Tarjeta','1193253719','340','2022-08-09 12:16:47') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:17:09
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253764','900','2022-08-09 12:17:26') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:17:46
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','3','0','5','Parquimetro','Tarjeta','1193253840','750','2022-08-09 12:18:25') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:18:44
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','3','0','5','Parquimetro','Tarjeta','1193253846','375','2022-08-09 12:18:13') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:18:48
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253850','450','2022-08-09 12:18:24') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:18:51
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193253990','1500','2022-08-09 12:19:07') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:20:17
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193254030','1350','2022-08-09 12:20:12') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:20:48
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193254036','450','2022-08-09 12:20:34') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:20:53
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','2','0','5','Parquimetro','Tarjeta','1193254082','1360','2022-08-09 12:21:12') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:21:34
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193254100','450','2022-08-09 12:21:37') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:21:54
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193254231','1350','2022-08-09 12:22:54') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:23:18
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193254242','450','2022-08-09 12:23:15') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:23:33
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','3','0','5','Parquimetro','Tarjeta','1193254261','375','2022-08-09 12:23:35') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:23:52
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193254267','450','2022-08-09 12:23:34') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:147 Fecha:2022-08-09 01:23:56
+voy a insertar tnx Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:145 Fecha:2022-08-09 01:24:42
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193254343','450','2022-08-09 12:24:18') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:149 Fecha:2022-08-09 01:24:42
+lo inserte Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:151 Fecha:2022-08-09 01:24:42
+voy a insertar tnx Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:145 Fecha:2022-08-09 01:24:47
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193254350','900','2022-08-09 12:24:21') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:149 Fecha:2022-08-09 01:24:47
+lo inserte Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:151 Fecha:2022-08-09 01:24:47
+voy a insertar tnx Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:145 Fecha:2022-08-09 01:25:07
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193254382','450','2022-08-09 12:24:42') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:149 Fecha:2022-08-09 01:25:07
+lo inserte Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:151 Fecha:2022-08-09 01:25:07
+voy a insertar tnx Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:145 Fecha:2022-08-09 01:25:27
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193254410','1350','2022-08-09 12:25:00') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:149 Fecha:2022-08-09 01:25:27
+lo inserte Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:151 Fecha:2022-08-09 01:25:27
+voy a insertar tnx Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:145 Fecha:2022-08-09 01:27:30
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','3','0','5','Parquimetro','Tarjeta','1193254551','375','2022-08-09 12:27:12') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:149 Fecha:2022-08-09 01:27:30
+lo inserte Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:151 Fecha:2022-08-09 01:27:30
+voy a insertar tnx Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:145 Fecha:2022-08-09 01:27:56
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193254586','1800','2022-08-09 12:26:58') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:149 Fecha:2022-08-09 01:27:56
+lo inserte Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:151 Fecha:2022-08-09 01:27:56
+voy a insertar tnx Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:145 Fecha:2022-08-09 01:28:03
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','2','0','5','Parquimetro','Tarjeta','1193254596','680','2022-08-09 12:27:39') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:149 Fecha:2022-08-09 01:28:03
+lo inserte Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:151 Fecha:2022-08-09 01:28:03
+voy a insertar tnx Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:145 Fecha:2022-08-09 01:28:46
+ INSERT INTO transactions
+			(country,idCompany,user,type,description,method,authorization,amount,date)
+			VALUES('COS','1','0','5','Parquimetro','Tarjeta','1193254646','900','2022-08-09 12:28:19') Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:149 Fecha:2022-08-09 01:28:46
+lo inserte Archivo:/var/www/html/serviceSetex/src/servicio.class.php Linea:151 Fecha:2022-08-09 01:28:46
