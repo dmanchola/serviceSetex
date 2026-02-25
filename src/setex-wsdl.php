@@ -1,7 +1,7 @@
 <?php
 // SETEX SOAP Web Service - Compatible con servicio original
-error_reporting(E_ALL ^ E_DEPRECATED); // Suprimir warnings de nuSOAP legacy
-ini_set('display_errors', '1'); // TEMPORAL: Mostrar errores para debugging
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE); // Suprimir warnings deprecated y notices
+ini_set('display_errors', '0'); // CRÍTICO: No mostrar errores en el XML SOAP
 
 include_once('setex-config.php');
 require_once(LIBSPATH . 'nusoap/lib/nusoap.php');
@@ -23,7 +23,7 @@ try {
 
 	// Configuración para PHP 8
 	$server->soap_defencoding = 'UTF-8';
-	$server->debug_flag = true; // TEMPORAL: Activar debug para ver errores
+	$server->debug_flag = false; // CRÍTICO: Debug OFF para evitar output en XML
 
 	$server->wsdl->addComplexType('codigoRespuestaComplex',
 			'complexType',
@@ -73,12 +73,15 @@ try {
 		$rawPostData = $GLOBALS['HTTP_RAW_POST_DATA'] ?? '';
 	}
 	
-	// Log de request si necesario
+	// Log de request si necesario - SIN AFECTAR XML
 	if (function_exists('watchDog::logDebug') && !empty($rawPostData)) {
-		watchDog::logDebug('SOAP Request recibido', [
+		// Log discreto sin output
+		@watchDog::logDebug('SOAP Request recibido', [
 			'content_type' => $_SERVER['CONTENT_TYPE'] ?? 'N/A',
 			'content_length' => $_SERVER['CONTENT_LENGTH'] ?? 0,
-			'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'N/A'
+			'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'N/A',
+			'raw_data_length' => strlen($rawPostData),
+			'raw_data_sample' => substr($rawPostData, 0, 200)
 		], 'soap_service');
 	}
 
