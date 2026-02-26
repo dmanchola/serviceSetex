@@ -350,6 +350,22 @@ function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 	$debugLog = '../logs/iniciarParqueo_debug_' . date('Y-m-d') . '.txt';
 	file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] === FUNCIÓN iniciarParqueo INICIADA ===\n", FILE_APPEND | LOCK_EX);
 	file_put_contents($debugLog, "Parámetros recibidos: token=$token, plazaId=$plazaId, passwordCps=$passwordCps\n", FILE_APPEND | LOCK_EX);
+	
+	// 🔥 DATOS HARDCODEADOS PARA TESTING - TEMPORAL
+	file_put_contents($debugLog, "🔥 USANDO DATOS HARDCODEADOS - MODO TESTING\n", FILE_APPEND | LOCK_EX);
+	
+	$token = 'dc2fec0f5f08fca379553cc7af20d556';  // Token válido
+	$plazaId = '2';  // Plaza 2 para testing
+	$zonaId = '999';  // Zona test
+	$identificador = '9876543210987';  // ID test (13 dígitos)
+	$tiempoParqueo = '30';  // 30 minutos
+	$importeParqueo = '50';  // $50
+	$fechaInicioParqueo = date('Y-m-d H:i:s');  // Ahora
+	$fechaFinParqueo = date('Y-m-d H:i:s', strtotime('+30 minutes'));  // +30 min
+	$nroTransaccion = 'TEST_' . date('YmdHis');  // Transacción única
+	$fechaTransaccion = date('Y-m-d H:i:s');
+	
+	file_put_contents($debugLog, "🔥 Datos de prueba: token=VÁLIDO, plazaId=$plazaId, identificador=$identificador, nroTransaccion=$nroTransaccion\n", FILE_APPEND | LOCK_EX);
 	$parametros=array();
 	$parametros['token']=$token;
 	$parametros['plazaId']=$plazaId;
