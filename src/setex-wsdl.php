@@ -123,6 +123,10 @@ try {
 	
 	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
         "PASO 8: Request recibido - Length: " . strlen($rawPostData) . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+        
+	// 🔍 DEBUG: Capturar XML RAW completo
+	file_put_contents('/var/www/html/serviceSetex/logs/raw_xml_debug_' . date('Y-m-d') . '.txt', 
+        "[" . date('Y-m-d H:i:s') . "] RAW XML RECIBIDO:\n" . $rawPostData . "\n\n", FILE_APPEND);
 	
 	// Log de request si necesario - SIN AFECTAR XML
 	if (function_exists('watchDog::logDebug') && !empty($rawPostData)) {

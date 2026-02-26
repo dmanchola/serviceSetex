@@ -349,7 +349,29 @@ function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 	// LOG INMEDIATO para debug
 	$debugLog = '../logs/iniciarParqueo_debug_' . date('Y-m-d') . '.txt';
 	file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] === FUNCIÓN iniciarParqueo INICIADA ===\n", FILE_APPEND | LOCK_EX);
-	file_put_contents($debugLog, "Parámetros recibidos: token=$token, plazaId=$plazaId, passwordCps=$passwordCps\n", FILE_APPEND | LOCK_EX);
+	
+	// 🔍 DEBUG: Capturar parámetros RAW tal como llegan
+	file_put_contents($debugLog, "🔍 DEBUG PARÁMETROS RAW:\n", FILE_APPEND | LOCK_EX);
+	file_put_contents($debugLog, "- token = '" . $token . "' (length: " . strlen($token) . ")\n", FILE_APPEND | LOCK_EX);
+	file_put_contents($debugLog, "- plazaId = '" . $plazaId . "' (length: " . strlen($plazaId) . ")\n", FILE_APPEND | LOCK_EX);
+	file_put_contents($debugLog, "- passwordCps = '" . $passwordCps . "' (length: " . strlen($passwordCps) . ")\n", FILE_APPEND | LOCK_EX);
+	file_put_contents($debugLog, "- identificador = '" . $identificador . "' (length: " . strlen($identificador) . ")\n", FILE_APPEND | LOCK_EX);
+	file_put_contents($debugLog, "🔍 func_get_args(): " . json_encode(func_get_args()) . "\n", FILE_APPEND | LOCK_EX);
+	file_put_contents($debugLog, "🔍 Total args: " . func_num_args() . "\n", FILE_APPEND | LOCK_EX);
+	
+	// Verificar si hay algún parámetro con contenido
+	$hasValues = false;
+	$args = func_get_args();
+	foreach($args as $i => $arg) {
+		if (!empty($arg)) {
+			$hasValues = true;
+			file_put_contents($debugLog, "✅ Argumento $i tiene valor: '$arg'\n", FILE_APPEND | LOCK_EX);
+		}
+	}
+	
+	if (!$hasValues) {
+		file_put_contents($debugLog, "❌ TODOS los parámetros llegaron VACÍOS - problema de mapeo nuSOAP\n", FILE_APPEND | LOCK_EX);
+	}
 	
 	// 🔥 DATOS HARDCODEADOS PARA TESTING - TEMPORAL
 	file_put_contents($debugLog, "🔥 USANDO DATOS HARDCODEADOS - MODO TESTING\n", FILE_APPEND | LOCK_EX);
