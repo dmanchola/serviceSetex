@@ -7,24 +7,21 @@ echo "================================="
 XML_FILE="/tmp/soap_request.xml"
 cat > $XML_FILE << 'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
-<soap:Envelope 
-    xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" 
-    xmlns:urn="urn:setexwsdl">
-    <soap:Header/>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     <soap:Body>
-        <urn:iniciarParqueo>
+        <iniciarParqueo xmlns="urn:setexwsdl">
             <token>dc2fec0f5f08fca379553cc7af20d556</token>
             <plazaId>1</plazaId>
             <zonaId>1</zonaId>
             <identificador>1234567890123</identificador>
             <tiempoParqueo>60</tiempoParqueo>
             <importeParqueo>100</importeParqueo>
-            <password>test123</password>
+            <passwordCps>test123</passwordCps>
             <fechaInicioParqueo>2026-02-25 21:30:00</fechaInicioParqueo>
             <fechaFinParqueo>2026-02-25 22:30:00</fechaFinParqueo>
             <nroTransaccion>TXN123456</nroTransaccion>
             <fechaTransaccion>2026-02-25 21:30:00</fechaTransaccion>
-        </urn:iniciarParqueo>
+        </iniciarParqueo>
     </soap:Body>
 </soap:Envelope>
 EOF

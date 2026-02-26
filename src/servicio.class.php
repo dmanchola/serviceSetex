@@ -343,14 +343,13 @@ function getVersion() {
  * @param string $fechaFinParqueo
  */
 function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
-		$tiempoParqueo="",$importeParqueo="",$password="",
+		$tiempoParqueo="",$importeParqueo="",$passwordCps="",
 		$fechaInicioParqueo="",$fechaFinParqueo="",$nroTransaccion="",$fechaTransaccion=""){
 	
 	// LOG INMEDIATO para debug
 	$debugLog = '../logs/iniciarParqueo_debug_' . date('Y-m-d') . '.txt';
 	file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] === FUNCIÓN iniciarParqueo INICIADA ===\n", FILE_APPEND | LOCK_EX);
-	file_put_contents($debugLog, "Parámetros recibidos: token=$token, plazaId=$plazaId, password=$password\n", FILE_APPEND | LOCK_EX);
-	
+	file_put_contents($debugLog, "Parámetros recibidos: token=$token, plazaId=$plazaId, passwordCps=$passwordCps\n", FILE_APPEND | LOCK_EX);
 	$parametros=array();
 	$parametros['token']=$token;
 	$parametros['plazaId']=$plazaId;
