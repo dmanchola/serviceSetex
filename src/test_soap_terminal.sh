@@ -19,7 +19,7 @@ cat > $XML_FILE << 'EOF'
             <identificador>1234567890123</identificador>
             <tiempoParqueo>60</tiempoParqueo>
             <importeParqueo>100</importeParqueo>
-            <passwordCps>test123</passwordCps>
+            <password>test123</password>
             <fechaInicioParqueo>2026-02-25 21:30:00</fechaInicioParqueo>
             <fechaFinParqueo>2026-02-25 22:30:00</fechaFinParqueo>
             <nroTransaccion>TXN123456</nroTransaccion>

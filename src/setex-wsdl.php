@@ -91,7 +91,7 @@ try {
 					'identificador' => 'xsd:string',
 					'tiempoParqueo' => 'xsd:int',
 					'importeParqueo' => 'xsd:int',
-					'passwordCps' => 'xsd:string',
+					'password' => 'xsd:string',
 					'fechaInicioParqueo' => 'xsd:string',
 					'fechaFinParqueo' => 'xsd:string',
 					'nroTransaccion' => 'xsd:string',
