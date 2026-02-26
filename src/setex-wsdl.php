@@ -5,49 +5,37 @@ ini_set('display_errors', '0'); // CRÍTICO: No mostrar errores en el XML SOAP
 
 include_once('setex-config.php');
 
-// DEBUG: Verificar si config se cargó
-if (function_exists('watchDog::logInfo')) {
-	watchDog::logInfo('PASO 1: Config cargada correctamente', [
-		'LIBSPATH' => defined('LIBSPATH') ? LIBSPATH : 'NOT_DEFINED',
-		'timestamp' => date('Y-m-d H:i:s')
-	], 'soap_debug');
-}
+// DEBUG: Verificar si config se cargó - SIN DEPENDENCIAS EXTERNAS
+file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+    "PASO 1: Config cargada - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
 // Cargar nuSOAP con manejo de errores
 try {
+    file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 2: Intentando cargar nuSOAP - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+        
 	require_once(LIBSPATH . 'nusoap/lib/nusoap.php');
-	if (function_exists('watchDog::logInfo')) {
-		watchDog::logInfo('PASO 2: nuSOAP cargado correctamente', [
-			'nusoap_class_exists' => class_exists('nusoap_server'),
-			'nusoap_file_path' => LIBSPATH . 'nusoap/lib/nusoap.php'
-		], 'soap_debug');
-	}
+	
+	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 2 OK: nuSOAP cargado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 } catch (Exception $e) {
-	if (function_exists('watchDog::logError')) {
-		watchDog::logError('ERROR: Falló carga de nuSOAP', [
-			'error' => $e->getMessage(),
-			'file_path' => LIBSPATH . 'nusoap/lib/nusoap.php'
-		], 'soap_debug');
-	}
+	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 2 ERROR: " . $e->getMessage() . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 	die("Error cargando nuSOAP: " . $e->getMessage());
 }
 
 // Cargar servicio.class.php con manejo de errores  
 try {
+    file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 3: Intentando cargar servicio.class.php - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+        
 	require_once("servicio.class.php");
-	if (function_exists('watchDog::logInfo')) {
-		watchDog::logInfo('PASO 3: servicio.class.php cargado correctamente', [
-			'servicio_class_exists' => class_exists('servicio'),
-			'servicio_file_path' => __DIR__ . '/servicio.class.php'
-		], 'soap_debug');
-	}
+	
+	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 3 OK: servicio.class.php cargado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 } catch (Exception $e) {
-	if (function_exists('watchDog::logError')) {
-		watchDog::logError('ERROR: Falló carga de servicio.class.php', [
-			'error' => $e->getMessage(),
-			'file_path' => __DIR__ . '/servicio.class.php'
-		], 'soap_debug');
-	}
+	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 3 ERROR: " . $e->getMessage() . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 	die("Error cargando servicio.class.php: " . $e->getMessage());
 }
 
@@ -62,23 +50,18 @@ if (function_exists('watchDog::logInfo')) {
 
 try {
 	// Se instancia el servidor con manejo de errores
+	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 4: Creando servidor nuSOAP - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+        
 	$server = new nusoap_server();
 	
-	if (function_exists('watchDog::logInfo')) {
-		watchDog::logInfo('PASO 4: Servidor nuSOAP creado correctamente', [
-			'server_class' => get_class($server),
-			'server_created' => is_object($server)
-		], 'soap_debug');
-	}
+	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 4 OK: Servidor nuSOAP creado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 	
 	$server->configureWSDL('SETEX', 'urn:setexwsdl');
 	
-	if (function_exists('watchDog::logInfo')) {
-		watchDog::logInfo('PASO 5: WSDL configurado correctamente', [
-			'wsdl_namespace' => 'urn:setexwsdl',
-			'service_name' => 'SETEX'
-		], 'soap_debug');
-	}
+	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 5 OK: WSDL configurado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
 	// Configuración para PHP 8
 	$server->soap_defencoding = 'UTF-8';
@@ -120,13 +103,8 @@ try {
 			'encoded',
 			'Iniciar Parqueo desde el Parquimetro'); //Inicio del Parqueo
 
-	if (function_exists('watchDog::logInfo')) {
-		watchDog::logInfo('PASO 6: Método iniciarParqueo registrado correctamente', [
-			'method_name' => 'iniciarParqueo',
-			'namespace' => 'urn:setexwsdl',
-			'soap_action' => 'urn:setexwsdl#iniciarParqueo'
-		], 'soap_debug');
-	}
+	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 6 OK: Método iniciarParqueo registrado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
 	//Manejo de Version
 	$server->register('getVersion',
@@ -134,12 +112,8 @@ try {
 		array('getVersionReturn' => 'codigoRespuestaStringComplex'),
 		'xsd:setexwsdl'); // Disponibilidad del WS
 
-	if (function_exists('watchDog::logInfo')) {
-		watchDog::logInfo('PASO 7: Todos los métodos SOAP registrados', [
-			'methods_registered' => ['iniciarParqueo', 'getVersion'],
-			'server_ready' => true
-		], 'soap_debug');
-	}
+	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 7 OK: Todos los métodos registrados - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
 	// Metodo de transferencia de datos compatible con PHP 8
 	$rawPostData = file_get_contents('php://input');
@@ -147,15 +121,8 @@ try {
 		$rawPostData = $GLOBALS['HTTP_RAW_POST_DATA'] ?? '';
 	}
 	
-	if (function_exists('watchDog::logInfo')) {
-		watchDog::logInfo('PASO 8: Request recibido', [
-			'content_type' => $_SERVER['CONTENT_TYPE'] ?? 'N/A',
-			'content_length' => $_SERVER['CONTENT_LENGTH'] ?? 0,
-			'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'N/A',
-			'raw_data_length' => strlen($rawPostData),
-			'has_data' => !empty($rawPostData)
-		], 'soap_debug');
-	}
+	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 8: Request recibido - Length: " . strlen($rawPostData) . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 	
 	// Log de request si necesario - SIN AFECTAR XML
 	if (function_exists('watchDog::logDebug') && !empty($rawPostData)) {
@@ -169,21 +136,13 @@ try {
 		], 'soap_service');
 	}
 
-	if (function_exists('watchDog::logInfo')) {
-		watchDog::logInfo('PASO 9: Iniciando procesamiento SOAP', [
-			'about_to_call' => 'server->service()',
-			'timestamp' => date('Y-m-d H:i:s')
-		], 'soap_debug');
-	}
+	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 9: Iniciando server->service() - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
 	$server->service($rawPostData);
 	
-	if (function_exists('watchDog::logInfo')) {
-		watchDog::logInfo('PASO 10: Procesamiento SOAP completado', [
-			'service_executed' => true,
-			'timestamp' => date('Y-m-d H:i:s')
-		], 'soap_debug');
-	}
+	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
+        "PASO 10 OK: service() completado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
 } catch (Exception $e) {
 	// Manejo de errores para PHP 8
