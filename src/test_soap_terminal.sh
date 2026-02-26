@@ -38,7 +38,7 @@ echo ""
 curl -X POST \
     http://54.187.87.75/serviceSetex/src/setex-wsdl.php \
     -H "Content-Type: text/xml; charset=utf-8" \
-    -H "SOAPAction: \"iniciarParqueo\"" \
+    -H "SOAPAction: \"urn:setexwsdl#iniciarParqueo\"" \
     -H "Accept: text/xml" \
     -d @$XML_FILE \
     --verbose \
