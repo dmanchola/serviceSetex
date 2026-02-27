@@ -1,205 +1,267 @@
 <?php
-// SETEX SOAP Web Service - Compatible con servicio original
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE); // Suprimir warnings deprecated y notices
-ini_set('display_errors', '0'); // CRÍTICO: No mostrar errores en el XML SOAP
+// SETEX NATIVE SOAP Web Service - Migrado de nuSOAP a SOAP nativo
+// Compatible con servicio original - MISMA URL, MEJOR RENDIMIENTO
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
+ini_set('display_errors', '0');
 
 include_once('setex-config.php');
 
-// DEBUG: Verificar si config se cargó - SIN DEPENDENCIAS EXTERNAS
-file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-    "PASO 1: Config cargada - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-
-// Cargar nuSOAP con manejo de errores
-try {
-    file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 2: Intentando cargar nuSOAP - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-        
-	require_once(LIBSPATH . 'nusoap/lib/nusoap.php');
-	
-	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 2 OK: nuSOAP cargado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-} catch (Exception $e) {
-	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 2 ERROR: " . $e->getMessage() . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-	die("Error cargando nuSOAP: " . $e->getMessage());
-}
-
-// Cargar servicio.class.php con manejo de errores  
-try {
-    file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 3: Intentando cargar servicio.class.php - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-        
-	require_once("servicio.class.php");
-	
-	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 3 OK: servicio.class.php cargado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-} catch (Exception $e) {
-	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 3 ERROR: " . $e->getMessage() . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-	die("Error cargando servicio.class.php: " . $e->getMessage());
-}
-
-// Log de inicio del servicio
-if (function_exists('watchDog::logInfo')) {
-	watchDog::logInfo('SOAP Service iniciado', [
-		'php_version' => PHP_VERSION,
-		'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'N/A',
-		'remote_addr' => $_SERVER['REMOTE_ADDR'] ?? 'N/A'
-	], 'soap_service');
-}
+// Log de inicio - MÉTODO NATIVO
+file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+    "NATIVE SOAP - Servicio iniciado (MISMA URL) - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
 try {
-	// Se instancia el servidor con manejo de errores
-	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 4: Creando servidor nuSOAP - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+    // Cargar clase de servicio
+    require_once("servicio.class.php");
+    
+    file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+        "NATIVE SOAP - servicio.class.php cargado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+
+    // Log con watchDog si está disponible
+    if (function_exists('watchDog::logInfo')) {
+        watchDog::logInfo('NATIVE SOAP Service iniciado', [
+            'migration' => 'nuSOAP -> PHP SOAP nativo',
+            'php_version' => PHP_VERSION,
+            'soap_enabled' => extension_loaded('soap') ? 'YES' : 'NO',
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'N/A',
+            'remote_addr' => $_SERVER['REMOTE_ADDR'] ?? 'N/A'
+        ], 'native_soap_service');
+    }
+
+    // Verificar si la extensión SOAP está disponible
+    if (!extension_loaded('soap')) {
+        throw new Exception('Extensión PHP SOAP no está disponible. Por favor instalar php-soap');
+    }
+
+    // WSDL inline compatible con el original
+    $wsdl_content = '<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" 
+             xmlns:tns="urn:setexwsdl" 
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+             targetNamespace="urn:setexwsdl" 
+             elementFormDefault="qualified">
+
+    <!-- Types - Compatible con nuSOAP original -->
+    <types>
+        <xsd:schema targetNamespace="urn:setexwsdl">
+            <xsd:complexType name="codigoRespuestaComplex">
+                <xsd:all>
+                    <xsd:element name="codigoRespuesta" type="xsd:int"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="codigoRespuestaStringComplex">
+                <xsd:all>
+                    <xsd:element name="codigoRespuesta" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+        </xsd:schema>
+    </types>
+
+    <!-- Messages - MISMA ESTRUCTURA QUE ANTES -->
+    <message name="getVersionRequest">
+        <part name="valor" type="xsd:string"/>
+    </message>
+    <message name="getVersionResponse">
+        <part name="getVersionReturn" type="tns:codigoRespuestaStringComplex"/>
+    </message>
+
+    <message name="iniciarParqueoRequest">
+        <part name="token" type="xsd:string"/>
+        <part name="plazaId" type="xsd:int"/>
+        <part name="zonaId" type="xsd:int"/>
+        <part name="identificador" type="xsd:string"/>
+        <part name="tiempoParqueo" type="xsd:int"/>
+        <part name="importeParqueo" type="xsd:int"/>
+        <part name="passwordCps" type="xsd:string"/>
+        <part name="fechaInicioParqueo" type="xsd:string"/>
+        <part name="fechaFinParqueo" type="xsd:string"/>
+        <part name="nroTransaccion" type="xsd:string"/>
+        <part name="fechaTransaccion" type="xsd:string"/>
+    </message>
+    <message name="iniciarParqueoResponse">
+        <part name="iniciarParqueoReturn" type="tns:codigoRespuestaComplex"/>
+    </message>
+
+    <!-- Port Type - MISMO CONTRATO -->
+    <portType name="SetexPortType">
+        <operation name="getVersion">
+            <input message="tns:getVersionRequest"/>
+            <output message="tns:getVersionResponse"/>
+        </operation>
+        <operation name="iniciarParqueo">
+            <input message="tns:iniciarParqueoRequest"/>
+            <output message="tns:iniciarParqueoResponse"/>
+        </operation>
+    </portType>
+
+    <!-- Binding - Compatible RPC/encoded como nuSOAP -->
+    <binding name="SetexBinding" type="tns:SetexPortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="getVersion">
+            <soap:operation soapAction="urn:setexwsdl#getVersion"/>
+            <input><soap:body use="encoded" namespace="urn:setexwsdl" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+            <output><soap:body use="encoded" namespace="urn:setexwsdl" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+        </operation>
+        <operation name="iniciarParqueo">
+            <soap:operation soapAction="urn:setexwsdl#iniciarParqueo"/>
+            <input><soap:body use="encoded" namespace="urn:setexwsdl" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+            <output><soap:body use="encoded" namespace="urn:setexwsdl" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+        </operation>
+    </binding>
+
+    <!-- Service - MISMA URL -->
+    <service name="SETEX">
+        <port name="SetexPort" binding="tns:SetexBinding">
+            <soap:address location="http://' . ($_SERVER['SERVER_NAME'] ?? 'localhost') . ($_SERVER['REQUEST_URI'] ?? '/') . '"/>
+        </port>
+    </service>
+
+</definitions>';
+
+    // Si se solicita WSDL, devolverlo
+    if (isset($_GET['wsdl'])) {
+        header('Content-Type: text/xml; charset=utf-8');
+        echo $wsdl_content;
+        exit;
+    }
+
+    // Crear servidor SOAP nativo CON compatibilidad nuSOAP
+    $server = new SoapServer(null, [
+        'location' => 'http://' . ($_SERVER['SERVER_NAME'] ?? 'localhost') . ($_SERVER['REQUEST_URI'] ?? '/'),
+        'uri' => 'urn:setexwsdl',
+        'encoding' => 'UTF-8',
+        'soap_version' => SOAP_1_1,
+        'style' => SOAP_RPC,
+        'use' => SOAP_ENCODED
+    ]);
+
+    file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+        "NATIVE SOAP - SoapServer creado (RPC/encoded compatible) - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+
+    // Clase wrapper - MISMA LÓGICA DE NEGOCIO
+    class SetexSoapService {
         
-	$server = new nusoap_server();
-	
-	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 4 OK: Servidor nuSOAP creado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-	
-	$server->configureWSDL('SETEX', 'urn:setexwsdl');
-	
-	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 5 OK: WSDL configurado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+        public function getVersion($valor) {
+            file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+                "NATIVE SOAP - getVersion llamado con valor: $valor - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+                
+            try {
+                $servicio = new servicio();
+                $resultado = $servicio->getVersion($valor);
+                
+                file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+                    "NATIVE SOAP - getVersion resultado: " . print_r($resultado, true) . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+                
+                return $resultado;
+            } catch (Exception $e) {
+                file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+                    "NATIVE SOAP - getVersion ERROR: " . $e->getMessage() . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+                return ['codigoRespuesta' => 'ERROR: ' . $e->getMessage()];
+            }
+        }
 
-	// Configuración para PHP 8
-	$server->soap_defencoding = 'UTF-8';
-	$server->decode_utf8 = false;
-	$server->debug_flag = false; // CRÍTICO: Debug OFF para evitar output en XML
-	
-	// Configuración adicional para mejor parsing de parámetros
-	$server->wsdl->schemaTargetNamespace = 'urn:setexwsdl';
-	$server->serialize_return = true;
-	
-	// Configuración para PHP 8.3 - Reducir warnings
-	if (!isset($_SERVER['SERVER_NAME'])) $_SERVER['SERVER_NAME'] = 'localhost';
-	if (!isset($_SERVER['SERVER_PORT'])) $_SERVER['SERVER_PORT'] = '80';
-	if (!isset($_SERVER['REQUEST_URI'])) $_SERVER['REQUEST_URI'] = '/';
-	
-	// Configuraciones específicas para mejor parsing XML
-	$server->xml_encoding = 'UTF-8';
-	$server->fault_encoding = 'UTF-8';
+        public function iniciarParqueo($token, $plazaId, $zonaId, $identificador, $tiempoParqueo, 
+                                     $importeParqueo, $passwordCps, $fechaInicioParqueo, 
+                                     $fechaFinParqueo, $nroTransaccion, $fechaTransaccion) {
+            
+            file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+                "NATIVE SOAP - iniciarParqueo llamado - Token: $token, PlazaId: $plazaId - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+                
+            try {
+                $servicio = new servicio();
+                
+                // MISMA LÓGICA de parsing y validación
+                $resultado = $servicio->iniciarParqueo(
+                    $token, $plazaId, $zonaId, $identificador, $tiempoParqueo,
+                    $importeParqueo, $passwordCps, $fechaInicioParqueo, 
+                    $fechaFinParqueo, $nroTransaccion, $fechaTransaccion
+                );
+                
+                file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+                    "NATIVE SOAP - iniciarParqueo resultado: " . print_r($resultado, true) . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+                
+                return $resultado;
+            } catch (Exception $e) {
+                file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+                    "NATIVE SOAP - iniciarParqueo ERROR: " . $e->getMessage() . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+                return ['codigoRespuesta' => 51]; // Mismo código de error que antes
+            }
+        }
+    }
 
-	$server->wsdl->addComplexType('codigoRespuestaComplex',
-			'complexType',
-			'struct',
-			'all',
-			'',
-			array('codigoRespuesta' => array('name' => 'codigoRespuesta', 'type' => 'xsd:int'))
-	);
+    // Registrar la clase en el servidor SOAP
+    $server->setClass('SetexSoapService');
 
-	$server->wsdl->addComplexType('codigoRespuestaStringComplex',
-			'complexType',
-			'struct',
-			'all',
-			'',
-			array('codigoRespuesta' => array('name' => 'codigoRespuesta', 'type' => 'xsd:string'))
-	);
+    file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+        "NATIVE SOAP - Clase registrada, procesando request - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
-	//Metodos para Parquimetro
-	$server->register('iniciarParqueo',
-			array('token' => 'xsd:string',
-					'plazaId' => 'xsd:int',
-					'zonaId' => 'xsd:int',
-					'identificador' => 'xsd:string',
-					'tiempoParqueo' => 'xsd:int',
-					'importeParqueo' => 'xsd:int',
-					'passwordCps' => 'xsd:string',
-					'fechaInicioParqueo' => 'xsd:string',
-					'fechaFinParqueo' => 'xsd:string',
-					'nroTransaccion' => 'xsd:string',
-					'fechaTransaccion' => 'xsd:string'),
-			array('iniciarParqueoReturn' => 'tns:codigoRespuestaComplex'),
-			'urn:setexwsdl',
-			'urn:setexwsdl#iniciarParqueo',
-			'rpc',
-			'encoded',
-			'Iniciar Parqueo desde el Parquimetro'); //Inicio del Parqueo
+    // Capturar XML de entrada para debugging - MISMO FORMATO
+    $rawPostData = file_get_contents('php://input');
+    if (empty($rawPostData) && isset($GLOBALS['HTTP_RAW_POST_DATA'])) {
+        $rawPostData = $GLOBALS['HTTP_RAW_POST_DATA'];
+    }
+    
+    if (!empty($rawPostData)) {
+        // Logs compatibles con formato anterior
+        file_put_contents('/var/www/html/serviceSetex/logs/raw_xml_debug_' . date('Y-m-d') . '.txt', 
+            "[" . date('Y-m-d H:i:s') . "] NATIVE SOAP RAW XML:\n" . $rawPostData . "\n\n", FILE_APPEND);
+            
+        // Log adicional para debugging nativo
+        file_put_contents('/var/www/html/serviceSetex/logs/native_soap_raw_' . date('Y-m-d') . '.txt', 
+            "[" . date('Y-m-d H:i:s') . "] MIGRATED SOAP RAW XML:\n" . $rawPostData . "\n\n", FILE_APPEND);
+    }
 
-	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 6 OK: Método iniciarParqueo registrado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+    // Log de debugging igual que antes
+    if (function_exists('watchDog::logDebug') && !empty($rawPostData)) {
+        @watchDog::logDebug('NATIVE SOAP Request recibido', [
+            'migration_status' => 'nuSOAP -> PHP SOAP nativo',
+            'content_type' => $_SERVER['CONTENT_TYPE'] ?? 'N/A',
+            'content_length' => $_SERVER['CONTENT_LENGTH'] ?? 0,
+            'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'N/A',
+            'raw_data_length' => strlen($rawPostData),
+            'raw_data_sample' => substr($rawPostData, 0, 200)
+        ], 'native_soap_service');
+    }
 
-	//Manejo de Version
-	$server->register('getVersion',
-		 array('valor' => 'xsd:string'),
-		array('getVersionReturn' => 'tns:codigoRespuestaStringComplex'),
-		'urn:setexwsdl',
-		'urn:setexwsdl#getVersion',
-		'rpc',
-		'encoded',
-		'Obtener version del servicio'); // Disponibilidad del WS
+    file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+        "NATIVE SOAP - Iniciando server->handle() - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
-	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 7 OK: Todos los métodos registrados - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+    // Procesar la request SOAP
+    $server->handle($rawPostData);
 
-	// Metodo de transferencia de datos compatible con PHP 8
-	$rawPostData = file_get_contents('php://input');
-	if (empty($rawPostData)) {
-		$rawPostData = $GLOBALS['HTTP_RAW_POST_DATA'] ?? '';
-	}
-	
-	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 8: Request recibido - Length: " . strlen($rawPostData) . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-        
-	// 🔍 DEBUG: Capturar XML RAW completo
-	file_put_contents('/var/www/html/serviceSetex/logs/raw_xml_debug_' . date('Y-m-d') . '.txt', 
-        "[" . date('Y-m-d H:i:s') . "] RAW XML RECIBIDO:\n" . $rawPostData . "\n\n", FILE_APPEND);
-	
-	// 🔍 DEBUG: Información adicional de headers
-	file_put_contents('/var/www/html/serviceSetex/logs/headers_debug_' . date('Y-m-d') . '.txt', 
-        "[" . date('Y-m-d H:i:s') . "] HEADERS:\n" . print_r(getallheaders(), true) . "\n\n", FILE_APPEND);
-	
-	// 🔍 DEBUG: Variables $_POST y $_GET
-	file_put_contents('/var/www/html/serviceSetex/logs/variables_debug_' . date('Y-m-d') . '.txt', 
-        "[" . date('Y-m-d H:i:s') . "] POST: " . print_r($_POST, true) . 
-        "GET: " . print_r($_GET, true) . "\n\n", FILE_APPEND);
-	
-	// Log de request si necesario - SIN AFECTAR XML
-	if (function_exists('watchDog::logDebug') && !empty($rawPostData)) {
-		// Log discreto sin output
-		@watchDog::logDebug('SOAP Request recibido', [
-			'content_type' => $_SERVER['CONTENT_TYPE'] ?? 'N/A',
-			'content_length' => $_SERVER['CONTENT_LENGTH'] ?? 0,
-			'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'N/A',
-			'raw_data_length' => strlen($rawPostData),
-			'raw_data_sample' => substr($rawPostData, 0, 200)
-		], 'soap_service');
-	}
-
-	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 9: Iniciando server->service() - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-
-	$server->service($rawPostData);
-	
-	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
-        "PASO 10 OK: service() completado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+    file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+        "NATIVE SOAP - Request procesado exitosamente - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
 } catch (Exception $e) {
-	// Manejo de errores para PHP 8
-	if (function_exists('watchDog::logError')) {
-		watchDog::logError('Error crítico en SOAP Service', [
-			'error_message' => $e->getMessage(),
-			'error_file' => $e->getFile(),
-			'error_line' => $e->getLine(),
-			'stack_trace' => $e->getTraceAsString()
-		], 'soap_service');
-	}
-	
-	// Responder con error SOAP válido
-	header('Content-Type: text/xml; charset=utf-8');
-	http_response_code(500);
-	
-	echo '<?xml version="1.0" encoding="UTF-8"?>';
-	echo '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">';
-	echo '<soap:Body>';
-	echo '<soap:Fault>';
-	echo '<faultcode>Server</faultcode>';
-	echo '<faultstring>Error interno del servidor</faultstring>';
-	echo '</soap:Fault>';
-	echo '</soap:Body>';
-	echo '</soap:Envelope>';
-	
-	exit(1);
+    // Manejo de errores compatible con nuSOAP
+    if (function_exists('watchDog::logError')) {
+        watchDog::logError('Error crítico en NATIVE SOAP Service', [
+            'migration_note' => 'Error durante migración nuSOAP -> SOAP nativo',
+            'error_message' => $e->getMessage(),
+            'error_file' => $e->getFile(),
+            'error_line' => $e->getLine(),
+            'stack_trace' => $e->getTraceAsString()
+        ], 'native_soap_service');
+    }
+    
+    file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+        "NATIVE SOAP - ERROR CRÍTICO: " . $e->getMessage() . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+    
+    // Responder con error SOAP válido - MISMO FORMATO
+    header('Content-Type: text/xml; charset=utf-8');
+    http_response_code(500);
+    
+    echo '<?xml version="1.0" encoding="UTF-8"?>';
+    echo '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">';
+    echo '<SOAP-ENV:Body>';
+    echo '<SOAP-ENV:Fault>';
+    echo '<faultcode>Server</faultcode>';
+    echo '<faultstring>Error interno del servidor</faultstring>';
+    echo '</SOAP-ENV:Fault>';
+    echo '</SOAP-ENV:Body>';
+    echo '</SOAP-ENV:Envelope>';
+    
+    exit(1);
 }
 ?>
