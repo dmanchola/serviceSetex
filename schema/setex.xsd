@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="urn:setexwsdl"
+           xmlns:tns="urn:setexwsdl"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <!-- ================================================ -->
+    <!-- TIPOS COMPLEJOS DE RESPUESTA                     -->
+    <!-- ================================================ -->
+    
+    <xs:complexType name="codigoRespuestaComplex">
+        <xs:sequence>
+            <xs:element name="codigoRespuesta" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="codigoRespuestaStringComplex">
+        <xs:sequence>
+            <xs:element name="codigoRespuesta" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ================================================ -->
+    <!-- SERVICIO: iniciarParqueo                         -->
+    <!-- ================================================ -->
+
+    <!-- Request de iniciarParqueo -->
+    <xs:element name="iniciarParqueo">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="token" type="xs:string"/>
+                <xs:element name="plazaId" type="xs:int"/>
+                <xs:element name="zonaId" type="xs:int"/>
+                <xs:element name="identificador" type="xs:string"/>
+                <xs:element name="tiempoParqueo" type="xs:int"/>
+                <xs:element name="importeParqueo" type="xs:int"/>
+                <xs:element name="passwordCps" type="xs:string"/>
+                <xs:element name="fechaInicioParqueo" type="xs:string"/>
+                <xs:element name="fechaFinParqueo" type="xs:string"/>
+                <xs:element name="nroTransaccion" type="xs:string"/>
+                <xs:element name="fechaTransaccion" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Response de iniciarParqueo -->
+    <xs:element name="iniciarParqueoResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="iniciarParqueoReturn" type="tns:codigoRespuestaComplex"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- ================================================ -->
+    <!-- SERVICIO: getVersion                             -->
+    <!-- ================================================ -->
+
+    <!-- Request de getVersion -->
+    <xs:element name="getVersion">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="valor" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Response de getVersion -->
+    <xs:element name="getVersionResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="getVersionReturn" type="tns:codigoRespuestaStringComplex"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

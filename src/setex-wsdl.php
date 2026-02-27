@@ -65,7 +65,13 @@ try {
 
 	// Configuración para PHP 8
 	$server->soap_defencoding = 'UTF-8';
+	$server->decode_utf8 = false;
 	$server->debug_flag = false; // CRÍTICO: Debug OFF para evitar output en XML
+	$server->charSet = 'UTF-8';
+	
+	// Configuración adicional para mejor parsing de parámetros
+	$server->wsdl->schemaTargetNamespace = 'urn:setexwsdl';
+	$server->serialize_return = true;
 
 	$server->wsdl->addComplexType('codigoRespuestaComplex',
 			'complexType',
@@ -109,8 +115,12 @@ try {
 	//Manejo de Version
 	$server->register('getVersion',
 		 array('valor' => 'xsd:string'),
-		array('getVersionReturn' => 'codigoRespuestaStringComplex'),
-		'xsd:setexwsdl'); // Disponibilidad del WS
+		array('getVersionReturn' => 'tns:codigoRespuestaStringComplex'),
+		'urn:setexwsdl',
+		'urn:setexwsdl#getVersion',
+		'rpc',
+		'encoded',
+		'Obtener version del servicio'); // Disponibilidad del WS
 
 	file_put_contents('/var/www/html/serviceSetex/logs/debug_simple.txt', 
         "PASO 7 OK: Todos los métodos registrados - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
@@ -127,6 +137,15 @@ try {
 	// 🔍 DEBUG: Capturar XML RAW completo
 	file_put_contents('/var/www/html/serviceSetex/logs/raw_xml_debug_' . date('Y-m-d') . '.txt', 
         "[" . date('Y-m-d H:i:s') . "] RAW XML RECIBIDO:\n" . $rawPostData . "\n\n", FILE_APPEND);
+	
+	// 🔍 DEBUG: Información adicional de headers
+	file_put_contents('/var/www/html/serviceSetex/logs/headers_debug_' . date('Y-m-d') . '.txt', 
+        "[" . date('Y-m-d H:i:s') . "] HEADERS:\n" . print_r(getallheaders(), true) . "\n\n", FILE_APPEND);
+	
+	// 🔍 DEBUG: Variables $_POST y $_GET
+	file_put_contents('/var/www/html/serviceSetex/logs/variables_debug_' . date('Y-m-d') . '.txt', 
+        "[" . date('Y-m-d H:i:s') . "] POST: " . print_r($_POST, true) . 
+        "GET: " . print_r($_GET, true) . "\n\n", FILE_APPEND);
 	
 	// Log de request si necesario - SIN AFECTAR XML
 	if (function_exists('watchDog::logDebug') && !empty($rawPostData)) {

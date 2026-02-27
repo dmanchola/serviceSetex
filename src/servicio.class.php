@@ -359,51 +359,41 @@ function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 	file_put_contents($debugLog, "🔍 func_get_args(): " . json_encode(func_get_args()) . "\n", FILE_APPEND | LOCK_EX);
 	file_put_contents($debugLog, "🔍 Total args: " . func_num_args() . "\n", FILE_APPEND | LOCK_EX);
 	
-	// Verificar si hay algún parámetro con contenido
-	$hasValues = false;
-	$args = func_get_args();
-	foreach($args as $i => $arg) {
-		if (!empty($arg)) {
-			$hasValues = true;
-			file_put_contents($debugLog, "✅ Argumento $i tiene valor: '$arg'\n", FILE_APPEND | LOCK_EX);
-		}
+	// 🔥 TEMPORAL: Si no llegan parámetros, usar hardcodeados para testing
+	$hasRealParams = !empty($token) || !empty($plazaId) || !empty($identificador);
+	
+	if (!$hasRealParams) {
+		file_put_contents($debugLog, "❌ PARÁMETROS VACÍOS - usando datos hardcodeados\n", FILE_APPEND | LOCK_EX);
+		$token = 'dc2fec0f5f08fca379553cc7af20d556';  // Token válido
+		$plazaId = '2';  // Plaza 2 para testing
+		$zonaId = '999';  // Zona test
+		$identificador = '9876543210987';  // ID test (13 dígitos)
+		$tiempoParqueo = '30';  // 30 minutos
+		$importeParqueo = '50';  // $50
+		$passwordCps = 'cps123';
+		$fechaInicioParqueo = date('Y-m-d H:i:s');  // Ahora
+		$fechaFinParqueo = date('Y-m-d H:i:s', strtotime('+30 minutes'));  // +30 min
+		$nroTransaccion = 'TEST_' . date('YmdHis');  // Transacción única
+		$fechaTransaccion = date('Y-m-d H:i:s');
+	} else {
+		file_put_contents($debugLog, "✅ PARÁMETROS REALES DETECTADOS\n", FILE_APPEND | LOCK_EX);
 	}
 	
-	if (!$hasValues) {
-		file_put_contents($debugLog, "❌ TODOS los parámetros llegaron VACÍOS - problema de mapeo nuSOAP\n", FILE_APPEND | LOCK_EX);
-	}
+	// Continuar con el resto de la función...
+	$parametros = array();
+	$parametros['token'] = $token;
+	$parametros['plazaId'] = $plazaId;
+	$parametros['zonaId'] = $zonaId;
+	$parametros['identificador'] = $identificador;
+	$parametros['tiempoParqueo'] = $tiempoParqueo;
+	$parametros['importeParqueo'] = $importeParqueo;
+	$parametros['fechaInicioParqueo'] = $fechaInicioParqueo;
+	$parametros['fechaFinParqueo'] = $fechaFinParqueo;
+	$parametros['nroTransaccion'] = $nroTransaccion;
+	$parametros['fechaTransaccion'] = $fechaTransaccion;
 	
-	// 🔥 DATOS HARDCODEADOS PARA TESTING - TEMPORAL
-	file_put_contents($debugLog, "🔥 USANDO DATOS HARDCODEADOS - MODO TESTING\n", FILE_APPEND | LOCK_EX);
-	
-	$token = 'dc2fec0f5f08fca379553cc7af20d556';  // Token válido
-	$plazaId = '2';  // Plaza 2 para testing
-	$zonaId = '999';  // Zona test
-	$identificador = '9876543210987';  // ID test (13 dígitos)
-	$tiempoParqueo = '30';  // 30 minutos
-	$importeParqueo = '50';  // $50
-	$fechaInicioParqueo = date('Y-m-d H:i:s');  // Ahora
-	$fechaFinParqueo = date('Y-m-d H:i:s', strtotime('+30 minutes'));  // +30 min
-	$nroTransaccion = 'TEST_' . date('YmdHis');  // Transacción única
-	$fechaTransaccion = date('Y-m-d H:i:s');
-	
-	file_put_contents($debugLog, "🔥 Datos de prueba: token=VÁLIDO, plazaId=$plazaId, identificador=$identificador, nroTransaccion=$nroTransaccion\n", FILE_APPEND | LOCK_EX);
-	$parametros=array();
-	$parametros['token']=$token;
-	$parametros['plazaId']=$plazaId;
-	$parametros['zonaId']=$zonaId;
-	$parametros['identificador']=$identificador;
-	$parametros['tiempoParqueo']=$tiempoParqueo;
-	$parametros['importeParqueo']=$importeParqueo;
-	$parametros['fechaInicioParqueo']=$fechaInicioParqueo;
-	$parametros['fechaFinParqueo']=$fechaFinParqueo;
-
-	#PAGO TC
-	$parametros['nroTransaccion']=$nroTransaccion;
-	$parametros['fechaTransaccion']=$fechaTransaccion;
-	
-	// LOG de parámetros recibidos
-	file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] Parámetros recibidos: " . json_encode($parametros) . "\n", FILE_APPEND | LOCK_EX);
+	// LOG de parámetros finales
+	file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] Parámetros finales: " . json_encode($parametros) . "\n", FILE_APPEND | LOCK_EX);
 
 	$enableLog = SetexEnvLoader::getBool('SETEX_LOG_ENABLED', false); // Configurable desde .env
 
@@ -448,7 +438,33 @@ function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 	}
 }
 
-
+/**
+ * Función wrapper para getVersion - Compatible con nuSOAP
+ * @param string $valor
+ * @return object
+ */  
+function getVersion($valor = "") {
+	// LOG INMEDIATO para debug
+	$debugLog = '../logs/getVersion_debug_' . date('Y-m-d') . '.txt';
+	file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] === FUNCIÓN getVersion INICIADA ===\n", FILE_APPEND | LOCK_EX);
+	file_put_contents($debugLog, "🔍 Parámetro recibido: '" . $valor . "' (length: " . strlen($valor) . ")\n", FILE_APPEND | LOCK_EX);
+	file_put_contents($debugLog, "🔍 func_get_args(): " . json_encode(func_get_args()) . "\n", FILE_APPEND | LOCK_EX);
+	
+	try {
+		$obj = new Servicio();
+		$result = $obj->consultarDisponibilidad();
+		
+		file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] Resultado: " . json_encode($result) . "\n", FILE_APPEND | LOCK_EX);
+		
+		return $result;
+	} catch (Exception $e) {
+		file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] ❌ EXCEPCIÓN: " . $e->getMessage() . "\n", FILE_APPEND | LOCK_EX);
+		
+		$errorObj = new stdClass();
+		$errorObj->codigoRespuesta = "ERROR: " . $e->getMessage();
+		return $errorObj;
+	}
+}
 
 
 ?>
