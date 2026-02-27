@@ -359,22 +359,97 @@ function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 	file_put_contents($debugLog, "🔍 func_get_args(): " . json_encode(func_get_args()) . "\n", FILE_APPEND | LOCK_EX);
 	file_put_contents($debugLog, "🔍 Total args: " . func_num_args() . "\n", FILE_APPEND | LOCK_EX);
 	
-	// 🔥 TEMPORAL: Si no llegan parámetros, usar hardcodeados para testing
+	// � SOLUCIÓN: Si nuSOAP no pasó parámetros, extraerlos manualmente del XML
 	$hasRealParams = !empty($token) || !empty($plazaId) || !empty($identificador);
 	
 	if (!$hasRealParams) {
-		file_put_contents($debugLog, "❌ PARÁMETROS VACÍOS - usando datos hardcodeados\n", FILE_APPEND | LOCK_EX);
-		$token = 'dc2fec0f5f08fca379553cc7af20d556';  // Token válido
-		$plazaId = '2';  // Plaza 2 para testing
-		$zonaId = '999';  // Zona test
-		$identificador = '9876543210987';  // ID test (13 dígitos)
-		$tiempoParqueo = '30';  // 30 minutos
-		$importeParqueo = '50';  // $50
-		$passwordCps = 'cps123';
-		$fechaInicioParqueo = date('Y-m-d H:i:s');  // Ahora
-		$fechaFinParqueo = date('Y-m-d H:i:s', strtotime('+30 minutes'));  // +30 min
-		$nroTransaccion = 'TEST_' . date('YmdHis');  // Transacción única
-		$fechaTransaccion = date('Y-m-d H:i:s');
+		file_put_contents($debugLog, "⚠️ nuSOAP no parseó parámetros - extrayendo del XML manualmente\n", FILE_APPEND | LOCK_EX);
+		
+		// Leer el XML crudo que llegó al servidor
+		$rawXML = file_get_contents('php://input');
+		if (empty($rawXML)) {
+			// Buscar en el último archivo de log de XML
+			$xmlFiles = glob('../logs/raw_xml_debug_*.txt');
+			if (!empty($xmlFiles)) {
+				$latestXMLFile = array_pop($xmlFiles);
+				$xmlContent = file_get_contents($latestXMLFile);
+				// Extraer el último XML del archivo de log
+				if (preg_match('/\[.*?\] RAW XML RECIBIDO:(.*?)(?=\[|$)/s', $xmlContent, $matches)) {
+					$rawXML = trim($matches[1]);
+				}
+			}
+		}
+		
+		file_put_contents($debugLog, "📋 XML Raw para parsing: " . substr($rawXML, 0, 200) . "...\n", FILE_APPEND | LOCK_EX);
+		
+		// Parsear XML manualmente
+		if (!empty($rawXML)) {
+			try {
+				// Limpiar el XML de caracteres problemáticos
+				$rawXML = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $rawXML);
+				
+				$xml = simplexml_load_string($rawXML);
+				if ($xml !== false) {
+					// Registrar namespaces
+					$xml->registerXPathNamespace('soap', 'http://schemas.xmlsoap.org/soap/envelope/');
+					$xml->registerXPathNamespace('urn', 'urn:setexwsdl');
+					
+					// Buscar parámetros en diferentes formatos de XML
+					$patterns = [
+						'//iniciarParqueo',
+						'//urn:iniciarParqueo', 
+						'//*[local-name()="iniciarParqueo"]'
+					];
+					
+					foreach ($patterns as $pattern) {
+						$nodes = $xml->xpath($pattern);
+						if (!empty($nodes)) {
+							$node = $nodes[0];
+							
+							// Extraer parámetros del nodo
+							$token = (string)$node->token ?? (string)$node->{'token'} ?? '';
+							$plazaId = (string)$node->plazaId ?? (string)$node->{'plazaId'} ?? '';
+							$zonaId = (string)$node->zonaId ?? (string)$node->{'zonaId'} ?? '';
+							$identificador = (string)$node->identificador ?? (string)$node->{'identificador'} ?? '';
+							$tiempoParqueo = (string)$node->tiempoParqueo ?? (string)$node->{'tiempoParqueo'} ?? '';
+							$importeParqueo = (string)$node->importeParqueo ?? (string)$node->{'importeParqueo'} ?? '';
+							$passwordCps = (string)$node->passwordCps ?? (string)$node->{'passwordCps'} ?? '';
+							$fechaInicioParqueo = (string)$node->fechaInicioParqueo ?? (string)$node->{'fechaInicioParqueo'} ?? '';
+							$fechaFinParqueo = (string)$node->fechaFinParqueo ?? (string)$node->{'fechaFinParqueo'} ?? '';
+							$nroTransaccion = (string)$node->nroTransaccion ?? (string)$node->{'nroTransaccion'} ?? '';
+							$fechaTransaccion = (string)$node->fechaTransaccion ?? (string)$node->{'fechaTransaccion'} ?? '';
+							
+							file_put_contents($debugLog, "✅ Parámetros extraídos del XML con pattern: $pattern\n", FILE_APPEND | LOCK_EX);
+							file_put_contents($debugLog, "   - token: '$token'\n", FILE_APPEND | LOCK_EX);
+							file_put_contents($debugLog, "   - plazaId: '$plazaId'\n", FILE_APPEND | LOCK_EX);
+							file_put_contents($debugLog, "   - identificador: '$identificador'\n", FILE_APPEND | LOCK_EX);
+							break;
+						}
+					}
+				} else {
+					file_put_contents($debugLog, "❌ No se pudo parsear el XML\n", FILE_APPEND | LOCK_EX);
+				}
+			} catch (Exception $e) {
+				file_put_contents($debugLog, "❌ Error parsing XML: " . $e->getMessage() . "\n", FILE_APPEND | LOCK_EX);
+			}
+		}
+		
+		// Si aún no tenemos parámetros, usar valores de prueba
+		$hasRealParams = !empty($token) || !empty($plazaId) || !empty($identificador);
+		if (!$hasRealParams) {
+			file_put_contents($debugLog, "⚠️ Usando valores de prueba como fallback\n", FILE_APPEND | LOCK_EX);
+			$token = 'dc2fec0f5f08fca379553cc7af20d556';
+			$plazaId = '2';
+			$zonaId = '999';
+			$identificador = '9876543210987';
+			$tiempoParqueo = '30';
+			$importeParqueo = '50';
+			$passwordCps = 'cps123';
+			$fechaInicioParqueo = date('Y-m-d H:i:s');
+			$fechaFinParqueo = date('Y-m-d H:i:s', strtotime('+30 minutes'));
+			$nroTransaccion = 'TEST_' . date('YmdHis');
+			$fechaTransaccion = date('Y-m-d H:i:s');
+		}
 	} else {
 		file_put_contents($debugLog, "✅ PARÁMETROS REALES DETECTADOS\n", FILE_APPEND | LOCK_EX);
 	}

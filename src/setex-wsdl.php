@@ -67,11 +67,19 @@ try {
 	$server->soap_defencoding = 'UTF-8';
 	$server->decode_utf8 = false;
 	$server->debug_flag = false; // CRÍTICO: Debug OFF para evitar output en XML
-	$server->charSet = 'UTF-8';
 	
 	// Configuración adicional para mejor parsing de parámetros
 	$server->wsdl->schemaTargetNamespace = 'urn:setexwsdl';
 	$server->serialize_return = true;
+	
+	// Configuración para PHP 8.3 - Reducir warnings
+	if (!isset($_SERVER['SERVER_NAME'])) $_SERVER['SERVER_NAME'] = 'localhost';
+	if (!isset($_SERVER['SERVER_PORT'])) $_SERVER['SERVER_PORT'] = '80';
+	if (!isset($_SERVER['REQUEST_URI'])) $_SERVER['REQUEST_URI'] = '/';
+	
+	// Configuraciones específicas para mejor parsing XML
+	$server->xml_encoding = 'UTF-8';
+	$server->fault_encoding = 'UTF-8';
 
 	$server->wsdl->addComplexType('codigoRespuestaComplex',
 			'complexType',
