@@ -513,33 +513,5 @@ function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 	}
 }
 
-/**
- * Función wrapper para getVersion - Compatible con nuSOAP
- * @param string $valor
- * @return object
- */  
-function getVersion($valor = "") {
-	// LOG INMEDIATO para debug
-	$debugLog = '../logs/getVersion_debug_' . date('Y-m-d') . '.txt';
-	file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] === FUNCIÓN getVersion INICIADA ===\n", FILE_APPEND | LOCK_EX);
-	file_put_contents($debugLog, "🔍 Parámetro recibido: '" . $valor . "' (length: " . strlen($valor) . ")\n", FILE_APPEND | LOCK_EX);
-	file_put_contents($debugLog, "🔍 func_get_args(): " . json_encode(func_get_args()) . "\n", FILE_APPEND | LOCK_EX);
-	
-	try {
-		$obj = new Servicio();
-		$result = $obj->consultarDisponibilidad();
-		
-		file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] Resultado: " . json_encode($result) . "\n", FILE_APPEND | LOCK_EX);
-		
-		return $result;
-	} catch (Exception $e) {
-		file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] ❌ EXCEPCIÓN: " . $e->getMessage() . "\n", FILE_APPEND | LOCK_EX);
-		
-		$errorObj = new stdClass();
-		$errorObj->codigoRespuesta = "ERROR: " . $e->getMessage();
-		return $errorObj;
-	}
-}
-
 
 ?>
