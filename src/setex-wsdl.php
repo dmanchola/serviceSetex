@@ -147,8 +147,8 @@ try {
                 "NATIVE SOAP - getVersion llamado con valor: $valor - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
                 
             try {
-                $servicio = new servicio();
-                $resultado = $servicio->getVersion($valor);
+                // getVersion es una función independiente, no método de clase
+                $resultado = getVersion();
                 
                 file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
                     "NATIVE SOAP - getVersion resultado: " . print_r($resultado, true) . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
@@ -169,10 +169,8 @@ try {
                 "NATIVE SOAP - iniciarParqueo llamado - Token: $token, PlazaId: $plazaId - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
                 
             try {
-                $servicio = new servicio();
-                
-                // MISMA LÓGICA de parsing y validación
-                $resultado = $servicio->iniciarParqueo(
+                // iniciarParqueo es una función independiente, no método de clase
+                $resultado = iniciarParqueo(
                     $token, $plazaId, $zonaId, $identificador, $tiempoParqueo,
                     $importeParqueo, $passwordCps, $fechaInicioParqueo, 
                     $fechaFinParqueo, $nroTransaccion, $fechaTransaccion
