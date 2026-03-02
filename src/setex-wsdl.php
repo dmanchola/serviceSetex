@@ -246,10 +246,6 @@ try {
             'error_line' => $e->getLine(),
             'transaction_id' => $transactionId
         ], $transactionId);
-    },
-            'error_line' => $e->getLine(),
-            'stack_trace' => $e->getTraceAsString()
-        ], 'native_soap_service');
     }
     
     file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
