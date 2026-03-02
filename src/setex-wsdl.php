@@ -19,13 +19,15 @@ try {
 
     // Log con watchDog si está disponible
     if (function_exists('watchDog::logInfo')) {
+        $transactionId = watchDog::generateTransactionId();
         watchDog::logInfo('NATIVE SOAP Service iniciado', [
             'migration' => 'nuSOAP -> PHP SOAP nativo',
             'php_version' => PHP_VERSION,
             'soap_enabled' => extension_loaded('soap') ? 'YES' : 'NO',
             'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'N/A',
-            'remote_addr' => $_SERVER['REMOTE_ADDR'] ?? 'N/A'
-        ], 'native_soap_service');
+            'remote_addr' => $_SERVER['REMOTE_ADDR'] ?? 'N/A',
+            'transaction_id' => $transactionId
+        ], $transactionId);
     }
 
     // Verificar si la extensión SOAP está disponible
@@ -212,14 +214,16 @@ try {
 
     // Log de debugging igual que antes
     if (function_exists('watchDog::logDebug') && !empty($rawPostData)) {
+        $transactionId = watchDog::generateTransactionId();
         @watchDog::logDebug('NATIVE SOAP Request recibido', [
             'migration_status' => 'nuSOAP -> PHP SOAP nativo',
             'content_type' => $_SERVER['CONTENT_TYPE'] ?? 'N/A',
             'content_length' => $_SERVER['CONTENT_LENGTH'] ?? 0,
             'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'N/A',
             'raw_data_length' => strlen($rawPostData),
-            'raw_data_sample' => substr($rawPostData, 0, 200)
-        ], 'native_soap_service');
+            'raw_data_sample' => substr($rawPostData, 0, 200),
+            'transaction_id' => $transactionId
+        ], $transactionId);
     }
 
     file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
@@ -234,10 +238,15 @@ try {
 } catch (Exception $e) {
     // Manejo de errores compatible con nuSOAP
     if (function_exists('watchDog::logError')) {
+        $transactionId = watchDog::generateTransactionId();
         watchDog::logError('Error crítico en NATIVE SOAP Service', [
             'migration_note' => 'Error durante migración nuSOAP -> SOAP nativo',
             'error_message' => $e->getMessage(),
             'error_file' => $e->getFile(),
+            'error_line' => $e->getLine(),
+            'transaction_id' => $transactionId
+        ], $transactionId);
+    },
             'error_line' => $e->getLine(),
             'stack_trace' => $e->getTraceAsString()
         ], 'native_soap_service');

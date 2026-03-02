@@ -36,13 +36,15 @@ if (SetexEnvLoader::get('ENVIRONMENT') === 'production') {
 // Log de configuración cargada
 if (file_exists(dirname(__FILE__) . '/watchdog.php')) {
     require_once(dirname(__FILE__) . '/watchdog.php');
+    $transactionId = watchDog::generateTransactionId();
     watchDog::logInfo('Configuración SETEX cargada', [
         'root_url' => $conf["rooturl"],
         'root_path' => $conf["rootpath"],
         'libs_path' => LIBSPATH,
         'logs_path' => RUTA_LOGS_WS,
         'environment' => SetexEnvLoader::get('ENVIRONMENT', 'production'),
-        'config_source' => '.env file'
-    ], 'config');
+        'config_source' => '.env file',
+        'transaction_id' => $transactionId
+    ], $transactionId);
 }
 ?>

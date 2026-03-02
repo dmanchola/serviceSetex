@@ -21,7 +21,7 @@ class Servicio {
 	const TARJETA_APROBADO=6;
 
 	//Errores Generales
-	const ERR_PARAM=6; //51
+	const ERR_PARAM=51;
 	const ERR_TOKEN=52;
 	const ERR_QUERY=53;
 	const ERR_OFFLINE=54;
@@ -31,21 +31,33 @@ class Servicio {
 	//Parametros Globales
 	var $error = array();
 	var $parametrosWS = array();
+	var $transactionId = null; // ID único para seguimiento de transacciones
 
 	function __construct() {
 		global $conn;
 
+		// Generar ID de transacción único
+		$this->transactionId = watchDog::generateTransactionId();
+
 		// Log de inicio de servicio
-		watchDog::logInfo('Iniciando servicio SETEX', ['timestamp' => date('Y-m-d H:i:s')], 'servicio');
+		watchDog::logInfo('Iniciando servicio SETEX', [
+			'transaction_id' => $this->transactionId,
+			'timestamp' => date('Y-m-d H:i:s')
+		], $this->transactionId);
 
 		$conn = conexion();
 		if (!$conn) {
-			watchDog::logError('Error de conexión a base de datos', ['error_code' => self::ERR_OFFLINE], 'servicio');
+			watchDog::logError('Error de conexión a base de datos', [
+				'error_code' => self::ERR_OFFLINE,
+				'transaction_id' => $this->transactionId
+			], $this->transactionId);
 			return self::ERR_OFFLINE;
 			exit;
 		}
 		
-		watchDog::logSuccess('Conexión a base de datos establecida', [], 'servicio');
+		watchDog::logSuccess('Conexión a base de datos establecida', [
+			'transaction_id' => $this->transactionId
+		], $this->transactionId);
 	}
 
 
@@ -58,7 +70,10 @@ class Servicio {
 		$codigoError = 0;
 		$parametrosFaltantes = [];
 		
-		watchDog::logDebug('Iniciando validación de parámetros', ['params_count' => count($parametros)], 'validation');
+		watchDog::logDebug('Iniciando validación de parámetros', [
+			'params_count' => count($parametros),
+			'transaction_id' => $this->transactionId
+		], $this->transactionId);
 		
 		foreach ($parametros as $indice => $valor) {
 			if (!isset($parametros[$indice]) OR $parametros[$indice] == "") {
@@ -70,10 +85,14 @@ class Servicio {
 		if ($codigoError !== 0) {
 			watchDog::logError('Parámetros faltantes o vacíos', [
 				'missing_params' => $parametrosFaltantes,
-				'error_code' => $codigoError
-			], 'validation');
+				'error_code' => $codigoError,
+				'transaction_id' => $this->transactionId
+			], $this->transactionId);
 		} else {
-			watchDog::logSuccess('Validación de parámetros exitosa', ['params_validated' => array_keys($parametros)], 'validation');
+			watchDog::logSuccess('Validación de parámetros exitosa', [
+				'params_validated' => array_keys($parametros),
+				'transaction_id' => $this->transactionId
+			], $this->transactionId);
 		}
 		
 		return $codigoError;
@@ -118,20 +137,24 @@ class Servicio {
 		$plate = "Parquimetro".$identificador;
 
 		//Validacion Token
-		watchDog::logDebug('Validando token de autenticación', ['token_received' => !empty($token)], 'auth');
+		watchDog::logDebug('Validando token de autenticación', [
+			'token_received' => !empty($token),
+			'transaction_id' => $this->transactionId
+		], $this->transactionId);
 		
 		if($token!=self::AUTH_WS_ACCOUNT){
 			$obj->codigoRespuesta=self::ERR_TOKEN;
-			watchDog::logAuth($token, false, 'auth');
+			watchDog::logAuth($token, false, $this->transactionId);
 			watchDog::logWarning('Token inválido recibido', [
 				'error_code' => self::ERR_TOKEN,
 				'plaza_id' => $plazaId,
-				'zona_id' => $zonaId
-			], 'security');
+				'zona_id' => $zonaId,
+				'transaction_id' => $this->transactionId
+			], $this->transactionId);
 			return $obj;
 		}
 		
-		watchDog::logAuth($token, true, 'auth');
+		watchDog::logAuth($token, true, $this->transactionId);
 
 
 		//Escritura de Archivo Inicio de Transaccion
@@ -151,15 +174,18 @@ class Servicio {
 		//watchDog::writeLogFile("validation", $parametrosEntrada, __LINE__, __FILE__, "iniciarParqueoSetex");
 
 		//Validacion de Parametros
-		watchDog::logInfo('Iniciando validación de parámetros del servicio', $this->parametrosWS, 'iniciarParqueoSetex');
+		watchDog::logInfo('Iniciando validación de parámetros del servicio', 
+			array_merge($this->parametrosWS, ['transaction_id' => $this->transactionId]), 
+			$this->transactionId);
 		
 		$returnValidacion = $this->validarParametros($this->parametrosWS);
 		if ($returnValidacion == self::ERR_PARAM) {
 			$obj->codigoRespuesta = $returnValidacion;
 			watchDog::logError('Error en validación de parámetros', [
 				'error_code' => $returnValidacion,
-				'received_params' => array_keys($this->parametrosWS)
-			], 'iniciarParqueoSetex');
+				'received_params' => array_keys($this->parametrosWS),
+				'transaction_id' => $this->transactionId
+			], $this->transactionId);
 			return $obj;
 		}
 
@@ -167,8 +193,9 @@ class Servicio {
 		watchDog::logDebug('Validando longitud del identificador', [
 			'identificador_length' => $longitudId,
 			'identificador' => $identificador,
-			'expected_length' => 13
-		], 'iniciarParqueoSetex');
+			'expected_length' => 13,
+			'transaction_id' => $this->transactionId
+		], $this->transactionId);
 		
 		if($longitudId==13){
 			$minPrice = "0";
@@ -197,45 +224,58 @@ class Servicio {
 				'company_id' => $idCompany,
 				'min_price' => $minPrice,
 				'transaction_number' => $nroTransaccion,
-				'amount' => $importeParqueo
-			], 'iniciarParqueoSetex');
+				'amount' => $importeParqueo,
+				'transaction_id' => $this->transactionId
+			], $this->transactionId);
 			
 			$insertarParqueo=" INSERT INTO transactions
 			(country,idCompany,user,type,description,method,authorization,amount,date)
 			VALUES('COS','$idCompany','0','5','Parquimetro','Tarjeta','$nroTransaccion','$importeParqueo','$fechaInicioParqueo')";
 			
-			watchDog::logDebug('Ejecutando query de transacción', ['query' => $insertarParqueo], 'database');
+			watchDog::logDebug('Ejecutando query de transacción', [
+				'query' => $insertarParqueo,
+				'transaction_id' => $this->transactionId
+			], $this->transactionId);
 			$ejecutarInsert = $conn->query($insertarParqueo);
 			
 			if ($ejecutarInsert) {
-				watchDog::logSuccess('Transacción insertada correctamente', ['transaction_id' => $conn->insert_id], 'database');
+				watchDog::logSuccess('Transacción insertada correctamente', [
+					'db_transaction_id' => $conn->insert_id,
+					'transaction_id' => $this->transactionId
+				], $this->transactionId);
 			} else {
 				watchDog::logError('Error al insertar transacción', [
 					'error' => $conn->error,
 					'errno' => $conn->errno,
-					'query' => $insertarParqueo
-				], 'database');
+					'query' => $insertarParqueo,
+					'transaction_id' => $this->transactionId
+				], $this->transactionId);
 			}
 
 			$insertarParqueo=" INSERT INTO parking
 			(date,startTime,endTime,time,platform,tipo,user,plate,place,minPrice,country,idCompany,free,count,authorization)
 			VALUES(NOW(),'$fechaInicioParqueo','$fechaFinParqueo',$tiempoParqueo,1,'Parquimetro','0','Parquimetro','$zonaId','$minPrice','COS','$idCompany',0,1,'$nroTransaccion')";
 			
-			watchDog::logDebug('Ejecutando query de parqueo', ['query' => $insertarParqueo], 'database');
+			watchDog::logDebug('Ejecutando query de parqueo', [
+				'query' => $insertarParqueo,
+				'transaction_id' => $this->transactionId
+			], $this->transactionId);
 			$ejecutarInsert = $conn->query($insertarParqueo);
 			
 			if ($ejecutarInsert) {
 				watchDog::logSuccess('Parqueo insertado correctamente', [
 					'parking_id' => $conn->insert_id,
 					'zona_id' => $zonaId,
-					'tiempo_parqueo' => $tiempoParqueo
-				], 'database');
+					'tiempo_parqueo' => $tiempoParqueo,
+					'transaction_id' => $this->transactionId
+				], $this->transactionId);
 			} else {
 				watchDog::logError('Error al insertar parqueo', [
 					'error' => $conn->error,
 					'errno' => $conn->errno,
-					'query' => $insertarParqueo
-				], 'database');
+					'query' => $insertarParqueo,
+					'transaction_id' => $this->transactionId
+				], $this->transactionId);
 			}
 
 			//watchDog::writeLogFile("validation", $insertarParqueo, __LINE__, __FILE__, "iniciarParqueoSetex");
@@ -246,8 +286,9 @@ class Servicio {
 					'error_message' => $ErrorMsg,
 					'error_number' => $conn->errno,
 					'query_type' => 'INSERT parking',
-					'transaction_number' => $nroTransaccion
-				], 'iniciarParqueoSetex');
+					'transaction_number' => $nroTransaccion,
+					'transaction_id' => $this->transactionId
+				], $this->transactionId);
 
 				$obj->codigoRespuesta = self::ERR_QUERY;
 				return $obj;
@@ -260,12 +301,15 @@ class Servicio {
 					'tiempo_parqueo' => $tiempoParqueo,
 					'importe' => $importeParqueo,
 					'transaction_number' => $nroTransaccion,
-					'codigo_respuesta' => self::TARJETA_APROBADO
-				], 'iniciarParqueoSetex');
+					'codigo_respuesta' => self::TARJETA_APROBADO,
+					'transaction_id' => $this->transactionId
+				], $this->transactionId);
 
 				//Cerrar Conexion
 				$conn->close();
-				watchDog::logInfo('Conexión a base de datos cerrada', [], 'database');
+				watchDog::logInfo('Conexión a base de datos cerrada', [
+					'transaction_id' => $this->transactionId
+				], $this->transactionId);
 				
 				$obj->codigoRespuesta=self::TARJETA_APROBADO;
 				return $obj;
@@ -280,8 +324,9 @@ class Servicio {
 				'longitud_esperada' => 13,
 				'error_code' => self::ERR_ID,
 				'plaza_id' => $plazaId,
-				'zona_id' => $zonaId
-			], 'iniciarParqueoSetex');
+				'zona_id' => $zonaId,
+				'transaction_id' => $this->transactionId
+			], $this->transactionId);
 			return  $obj;
 		}
 
@@ -303,15 +348,19 @@ class Servicio {
  * @return <type>
  */
 function getVersion() {
-	watchDog::logInfo('Consultando versión del servicio', [], 'getVersion');
+	$transactionId = watchDog::generateTransactionId();
+	watchDog::logInfo('Consultando versión del servicio', [
+		'transaction_id' => $transactionId
+	], $transactionId);
 	
 	try {
 		$obj = new Servicio();
 		$result = $obj->consultarDisponibilidad();
 		
 		watchDog::logSuccess('Versión consultada exitosamente', [
-			'version' => $result->codigoRespuesta
-		], 'getVersion');
+			'version' => $result->codigoRespuesta,
+			'transaction_id' => $transactionId
+		], $transactionId);
 		
 		return $result;
 	} catch (Exception $e) {
@@ -319,8 +368,9 @@ function getVersion() {
 			'error_message' => $e->getMessage(),
 			'error_code' => $e->getCode(),
 			'file' => $e->getFile(),
-			'line' => $e->getLine()
-		], 'getVersion');
+			'line' => $e->getLine(),
+			'transaction_id' => $transactionId
+		], $transactionId);
 		
 		// Retornar error controlado
 		$errorObj = new stdClass();
@@ -473,21 +523,29 @@ function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 	$enableLog = SetexEnvLoader::getBool('SETEX_LOG_ENABLED', false); // Configurable desde .env
 
 	if ($enableLog) {
-		watchDog::logInfo('Parámetros recibidos en iniciarParqueo', $parametros, 'iniciarParqueo');
+		$transactionId = watchDog::generateTransactionId();
+		watchDog::logInfo('Parámetros recibidos en iniciarParqueo', 
+			array_merge($parametros, ['transaction_id' => $transactionId]), 
+			$transactionId);
 		
 		// Validación adicional de parámetros críticos
 		if (empty($parametros['token'])) {
-			watchDog::logWarning('Token vacío o no proporcionado', $parametros, 'iniciarParqueo');
+			watchDog::logWarning('Token vacío o no proporcionado', 
+				array_merge($parametros, ['transaction_id' => $transactionId]), 
+				$transactionId);
 		}
 		
 		if (empty($parametros['identificador'])) {
-			watchDog::logWarning('Identificador vacío o no proporcionado', $parametros, 'iniciarParqueo');
+			watchDog::logWarning('Identificador vacío o no proporcionado', 
+				array_merge($parametros, ['transaction_id' => $transactionId]), 
+				$transactionId);
 		}
 		
 		if ($parametros['tiempoParqueo'] <= 0) {
 			watchDog::logWarning('Tiempo de parqueo inválido', [
-				'tiempo_parqueo' => $parametros['tiempoParqueo']
-			], 'iniciarParqueo');
+				'tiempo_parqueo' => $parametros['tiempoParqueo'],
+				'transaction_id' => $transactionId
+			], $transactionId);
 		}
 	}
 
