@@ -21,7 +21,7 @@ class Servicio {
 	const TARJETA_APROBADO=6;
 
 	//Errores Generales
-	const ERR_PARAM=51;
+	const ERR_PARAM=6; // 51;
 	const ERR_TOKEN=52;
 	const ERR_QUERY=53;
 	const ERR_OFFLINE=54;
@@ -150,10 +150,6 @@ class Servicio {
 				" NRO TRANSACCION :" . $nroTransaccion.
 				" FECHA TRANSACCION :" . $fechaTransaccion;
 
-
-
-		//watchDog::writeLogFile("validation", $parametrosEntrada, __LINE__, __FILE__, "iniciarParqueoSetex");
-
 		//Validacion de Parametros
 		watchDog::logInfo('Iniciando validación de parámetros del servicio', 
 			array_merge($this->parametrosWS, ['transaction_id' => $this->transactionId]), 
@@ -182,21 +178,21 @@ class Servicio {
 			$minPrice = "0";
 			$idCompany = "0";
 			switch ($plazaId) {
-    		case 1:
-        		$minPrice = "16.00";
-        		$idCompany = "1";
-        		break;
-    		case 2:
-        		$minPrice = "11.333333333333332";
-        		$idCompany = "2";
-        		break;
-        	case 3:
-        		$minPrice = "12.5";
-        		$idCompany = "3";
-        		break;
-        	case 4:
-        		$minPrice = "10.00";
-        		$idCompany = "7";
+				case 1:
+					$minPrice = "16.00";
+					$idCompany = "1";
+					break;
+				case 2:
+					$minPrice = "11.333333333333332";
+					$idCompany = "2";
+					break;
+				case 3:
+					$minPrice = "12.5";
+					$idCompany = "3";
+					break;
+				case 4:
+					$minPrice = "10.00";
+					$idCompany = "7";
         		break;
 			}
 			#Pagos con tarjeta de credito
