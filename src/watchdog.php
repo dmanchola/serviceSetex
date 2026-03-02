@@ -33,60 +33,55 @@ Class watchDog {
     }
 
     /**
-     * Escribe en el log unificado con rotación automática
+     * Escribe en el log unificado - COMPLETAMENTE OPCIONAL 
      */
     static function writeUnifiedLog($level, $message, $context, $line, $file, $transactionId = null) {
+        // Completamente opcional - si falla, no debe afectar nada
         try {
-            // Cargar configuración de manera segura
             $logsPath = '../logs';
             if (function_exists('getenv')) {
-                $envPath = getenv('SETEX_LOGS_PATH');
+                $envPath = @getenv('SETEX_LOGS_PATH');
                 if (!empty($envPath)) {
                     $logsPath = $envPath;
                 }
             }
             
-            $logsPath = rtrim($logsPath, '/') . '/';
+            $logsPath = @rtrim($logsPath, '/') . '/';
             $logFile = $logsPath . self::UNIFIED_LOG_FILE;
             
-            // Crear directorio si no existe
-            if (!is_dir($logsPath)) {
-                @mkdir($logsPath, 0777, true);
-            }
-            
-            // Rotación simple: verificar edad del archivo
-            if (file_exists($logFile)) {
-                $fileAge = time() - filemtime($logFile);
-                if ($fileAge > (self::LOG_RETENTION_DAYS * 24 * 60 * 60)) {
-                    @unlink($logFile); // Eliminar archivo viejo
+            // Solo proceder si el directorio es escribible o se puede crear
+            if (@is_dir($logsPath) || @mkdir($logsPath, 0777, true)) {
+                // Rotación opcional
+                if (@file_exists($logFile)) {
+                    $fileAge = time() - @filemtime($logFile);
+                    if ($fileAge > (self::LOG_RETENTION_DAYS * 24 * 60 * 60)) {
+                        @unlink($logFile);
+                    }
                 }
-            }
-            
-            // Generar transaction ID si no se proporciona
-            if (empty($transactionId)) {
-                $transactionId = substr(uniqid(), -6) . sprintf('%03d', rand(0, 999));
-            }
-            
-            // Formato unificado con encoding seguro
-            $timestamp = date('Y-m-d H:i:s');
-            $contextStr = '{}';
-            if (!empty($context) && is_array($context)) {
-                $contextStr = @json_encode($context, JSON_UNESCAPED_UNICODE);
-                if ($contextStr === false) {
-                    $contextStr = '{"error":"json_encode_failed"}';
+                
+                // Generar transaction ID simple
+                if (empty($transactionId)) {
+                    $transactionId = @substr(@uniqid(), -6);
                 }
-            }
-            $fileName = basename($file);
-            
-            $logLine = "[{$timestamp}] [{$level}] [tx:{$transactionId}] {$message} | {$contextStr} | {$fileName}:{$line}\n";
-            
-            // Escribir de manera segura
-            if (is_dir(dirname($logFile))) {
+                
+                // Formato simple y seguro 
+                $timestamp = @date('Y-m-d H:i:s');
+                $contextStr = '{}';
+                if (!empty($context) && @is_array($context)) {
+                    $contextStr = @json_encode($context);
+                    if ($contextStr === false) {
+                        $contextStr = '{}';
+                    }
+                }
+                $fileName = @basename($file);
+                
+                $logLine = "[{$timestamp}] [{$level}] [tx:{$transactionId}] {$message} | {$contextStr} | {$fileName}:{$line}\n";
+                
+                // Escribir solo si es posible
                 @file_put_contents($logFile, $logLine, FILE_APPEND | LOCK_EX);
             }
         } catch (Exception $e) {
-            // Fallback silencioso - no romper la aplicación
-            @error_log("WatchDog Error: " . $e->getMessage());
+            // Completamente silencioso - no debe impactar funcionalidad
         }
     }
     
@@ -105,93 +100,99 @@ Class watchDog {
     }
     
     /**
-     * Log con nivel específico - VERSION UNIFICADA
+     * Log con nivel específico
      */
-    static function logWithLevel($level, $message, $context = [], $transactionId = null) {
+    static function logWithLevel($level, $message, $context = [], $file = 'system') {
+        $contextStr = empty($context) ? '' : ' | Context: ' . json_encode($context);
+        $logMessage = "[{$level}] {$message}{$contextStr}";
+        
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? $trace[0];
+        
+        // Comportamiento original - MANTENER SIEMPRE
+        self::writeLogFile(
+            strtolower($level),
+            $logMessage,
+            $caller['line'] ?? 0,
+            $caller['file'] ?? 'unknown',
+            $file
+        );
+        
+        // BONUS: También escribir al log unificado si está disponible
         try {
-            $trace = debug_backtrace();
-            $caller = isset($trace[1]) ? $trace[1] : $trace[0];
-            
-            // Usar log unificado
-            self::writeUnifiedLog(
-                $level,
-                $message,
-                $context,
-                isset($caller['line']) ? $caller['line'] : 0,
-                isset($caller['file']) ? $caller['file'] : 'unknown',
-                $transactionId
-            );
+            if (method_exists('watchDog', 'writeUnifiedLog')) {
+                @self::writeUnifiedLog($level, $message, $context, $caller['line'] ?? 0, $caller['file'] ?? 'unknown', null);
+            }
         } catch (Exception $e) {
-            // Fallback silencioso
-            @error_log("WatchDog logWithLevel Error: " . $e->getMessage());
+            // Ignorar errores del log unificado - no debe afectar funcionalidad original
         }
     }
     
     /**
      * Log de errores
      */
-    static function logError($message, $context = [], $transactionId = null) {
-        self::logWithLevel(self::LOG_ERROR, $message, $context, $transactionId);
+    static function logError($message, $context = [], $file = 'errors') {
+        self::logWithLevel(self::LOG_ERROR, $message, $context, $file);
     }
     
     /**
      * Log de advertencias
      */
-    static function logWarning($message, $context = [], $transactionId = null) {
-        self::logWithLevel(self::LOG_WARNING, $message, $context, $transactionId);
+    static function logWarning($message, $context = [], $file = 'warnings') {
+        self::logWithLevel(self::LOG_WARNING, $message, $context, $file);
     }
     
     /**
      * Log de información
      */
-    static function logInfo($message, $context = [], $transactionId = null) {
-        self::logWithLevel(self::LOG_INFO, $message, $context, $transactionId);
+    static function logInfo($message, $context = [], $file = 'info') {
+        self::logWithLevel(self::LOG_INFO, $message, $context, $file);
     }
     
     /**
      * Log de debug
      */
-    static function logDebug($message, $context = [], $transactionId = null) {
-        self::logWithLevel(self::LOG_DEBUG, $message, $context, $transactionId);
+    static function logDebug($message, $context = [], $file = 'debug') {
+        self::logWithLevel(self::LOG_DEBUG, $message, $context, $file);
     }
     
     /**
      * Log de operaciones exitosas
      */
-    static function logSuccess($message, $context = [], $transactionId = null) {
-        self::logWithLevel(self::LOG_SUCCESS, $message, $context, $transactionId);
+    static function logSuccess($message, $context = [], $file = 'success') {
+        self::logWithLevel(self::LOG_SUCCESS, $message, $context, $file);
     }
     
     /**
      * Log de validación de parámetros
      */
-    static function logValidation($result, $params = [], $transactionId = null) {
+    static function logValidation($result, $params = [], $file = 'validation') {
         $level = $result === 0 ? self::LOG_SUCCESS : self::LOG_ERROR;
         $message = $result === 0 ? 'Validación exitosa' : "Error de validación: código {$result}";
-        self::logWithLevel($level, $message, $params, $transactionId);
+        self::logWithLevel($level, $message, $params, $file);
     }
     
     /**
      * Log de operaciones de base de datos
      */
-    static function logDatabase($operation, $query, $success, $error = null, $transactionId = null) {
+    static function logDatabase($operation, $query, $success, $error = null, $file = 'database') {
         $level = $success ? self::LOG_SUCCESS : self::LOG_ERROR;
         $message = $success ? "DB {$operation} exitosa" : "DB {$operation} falló: {$error}";
         $context = ['query' => substr($query, 0, 200), 'success' => $success];
         if ($error) {
             $context['error'] = $error;
         }
-        self::logWithLevel($level, $message, $context, $transactionId);
+        self::logWithLevel($level, $message, $context, $file);
     }
     
     /**
      * Log de autenticación
      */
-    static function logAuth($token, $success, $transactionId = null) {
+    static function logAuth($token, $success, $file = 'auth') {
         $level = $success ? self::LOG_SUCCESS : self::LOG_WARNING;
         $message = $success ? 'Autenticación exitosa' : 'Fallo de autenticación';
         $context = ['token_provided' => !empty($token), 'success' => $success];
-        self::logWithLevel($level, $message, $context, $transactionId);
+        self::logWithLevel($level, $message, $context, $file);
     }
 }
 
