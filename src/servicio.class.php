@@ -36,28 +36,44 @@ class Servicio {
 	function __construct() {
 		global $conn;
 
-		// Generar ID de transacción único
-		$this->transactionId = watchDog::generateTransactionId();
+		// Generar ID de transacción único de manera segura
+		try {
+			$this->transactionId = watchDog::generateTransactionId();
+		} catch (Exception $e) {
+			$this->transactionId = substr(md5(microtime()), 0, 9);
+		}
 
 		// Log de inicio de servicio
-		watchDog::logInfo('Iniciando servicio SETEX', [
-			'transaction_id' => $this->transactionId,
-			'timestamp' => date('Y-m-d H:i:s')
-		], $this->transactionId);
+		try {
+			watchDog::logInfo('Iniciando servicio SETEX', [
+				'transaction_id' => $this->transactionId,
+				'timestamp' => date('Y-m-d H:i:s')
+			], $this->transactionId);
+		} catch (Exception $e) {
+			// Continuar sin logging en caso de error
+		}
 
 		$conn = conexion();
 		if (!$conn) {
-			watchDog::logError('Error de conexión a base de datos', [
-				'error_code' => self::ERR_OFFLINE,
-				'transaction_id' => $this->transactionId
-			], $this->transactionId);
-			return self::ERR_OFFLINE;
+			try {
+				watchDog::logError('Error de conexión a base de datos', [
+					'error_code' => self::ERR_OFFLINE,
+					'transaction_id' => $this->transactionId
+				], $this->transactionId);
+			} catch (Exception $e) {
+				// Continuar sin logging
+			}
+			// Solo exit, no return antes de exit
 			exit;
 		}
 		
-		watchDog::logSuccess('Conexión a base de datos establecida', [
-			'transaction_id' => $this->transactionId
-		], $this->transactionId);
+		try {
+			watchDog::logSuccess('Conexión a base de datos establecida', [
+				'transaction_id' => $this->transactionId
+			], $this->transactionId);
+		} catch (Exception $e) {
+			// Continuar sin logging en caso de error
+		}
 	}
 
 

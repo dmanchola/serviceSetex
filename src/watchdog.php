@@ -24,58 +24,69 @@ Class watchDog {
      * Genera un ID único de transacción para seguimiento
      */
     static function generateTransactionId() {
-        return substr(uniqid(), -6) . sprintf('%03d', rand(0, 999));
+        try {
+            return substr(uniqid(), -6) . sprintf('%03d', rand(0, 999));
+        } catch (Exception $e) {
+            // Fallback simple
+            return substr(md5(microtime()), 0, 9);
+        }
     }
 
     /**
      * Escribe en el log unificado con rotación automática
      */
     static function writeUnifiedLog($level, $message, $context, $line, $file, $transactionId = null) {
-        // Cargar configuración
-        if (!getenv('SETEX_LOGS_PATH') && file_exists('env-loader.php')) {
-            try {
-                require_once('env-loader.php');
-                SetexEnvLoader::load();
-            } catch (Exception $e) {
-                // Ignorar errores de carga
-            }
-        }
-        
-        $logsPath = getenv('SETEX_LOGS_PATH') ?: './logs';
-        $logsPath = rtrim($logsPath, '/') . '/';
-        $logFile = $logsPath . self::UNIFIED_LOG_FILE;
-        
-        // Crear directorio si no existe
-        if (!is_dir($logsPath)) {
-            @mkdir($logsPath, 0777, true);
-        }
-        
-        // Rotación simple: verificar edad del archivo
-        if (file_exists($logFile)) {
-            $fileAge = time() - filemtime($logFile);
-            if ($fileAge > (self::LOG_RETENTION_DAYS * 24 * 60 * 60)) {
-                @unlink($logFile); // Eliminar archivo viejo
-            }
-        }
-        
-        // Generar transaction ID si no se proporciona
-        if (!$transactionId) {
-            $transactionId = self::generateTransactionId();
-        }
-        
-        // Formato unificado: [timestamp] [LEVEL] [tx:id] mensaje | context | file:line
-        $timestamp = date('Y-m-d H:i:s');
-        $contextStr = empty($context) ? '{}' : json_encode($context);
-        $fileName = basename($file);
-        
-        $logLine = "[{$timestamp}] [{$level}] [tx:{$transactionId}] {$message} | {$contextStr} | {$fileName}:{$line}\n";
-        
         try {
-            if (is_writable(dirname($logFile)) || !file_exists($logFile)) {
-                file_put_contents($logFile, $logLine, FILE_APPEND | LOCK_EX);
+            // Cargar configuración de manera segura
+            $logsPath = '../logs';
+            if (function_exists('getenv')) {
+                $envPath = getenv('SETEX_LOGS_PATH');
+                if (!empty($envPath)) {
+                    $logsPath = $envPath;
+                }
+            }
+            
+            $logsPath = rtrim($logsPath, '/') . '/';
+            $logFile = $logsPath . self::UNIFIED_LOG_FILE;
+            
+            // Crear directorio si no existe
+            if (!is_dir($logsPath)) {
+                @mkdir($logsPath, 0777, true);
+            }
+            
+            // Rotación simple: verificar edad del archivo
+            if (file_exists($logFile)) {
+                $fileAge = time() - filemtime($logFile);
+                if ($fileAge > (self::LOG_RETENTION_DAYS * 24 * 60 * 60)) {
+                    @unlink($logFile); // Eliminar archivo viejo
+                }
+            }
+            
+            // Generar transaction ID si no se proporciona
+            if (empty($transactionId)) {
+                $transactionId = substr(uniqid(), -6) . sprintf('%03d', rand(0, 999));
+            }
+            
+            // Formato unificado con encoding seguro
+            $timestamp = date('Y-m-d H:i:s');
+            $contextStr = '{}';
+            if (!empty($context) && is_array($context)) {
+                $contextStr = @json_encode($context, JSON_UNESCAPED_UNICODE);
+                if ($contextStr === false) {
+                    $contextStr = '{"error":"json_encode_failed"}';
+                }
+            }
+            $fileName = basename($file);
+            
+            $logLine = "[{$timestamp}] [{$level}] [tx:{$transactionId}] {$message} | {$contextStr} | {$fileName}:{$line}\n";
+            
+            // Escribir de manera segura
+            if (is_dir(dirname($logFile))) {
+                @file_put_contents($logFile, $logLine, FILE_APPEND | LOCK_EX);
             }
         } catch (Exception $e) {
-            error_log("WatchDog Unified Log Error: " . $e->getMessage());
+            // Fallback silencioso - no romper la aplicación
+            @error_log("WatchDog Error: " . $e->getMessage());
         }
     }
     
@@ -97,18 +108,23 @@ Class watchDog {
      * Log con nivel específico - VERSION UNIFICADA
      */
     static function logWithLevel($level, $message, $context = [], $transactionId = null) {
-        $trace = debug_backtrace();
-        $caller = $trace[1] ?? $trace[0];
-        
-        // Usar log unificado
-        self::writeUnifiedLog(
-            $level,
-            $message,
-            $context,
-            $caller['line'] ?? 0,
-            $caller['file'] ?? 'unknown',
-            $transactionId
-        );
+        try {
+            $trace = debug_backtrace();
+            $caller = isset($trace[1]) ? $trace[1] : $trace[0];
+            
+            // Usar log unificado
+            self::writeUnifiedLog(
+                $level,
+                $message,
+                $context,
+                isset($caller['line']) ? $caller['line'] : 0,
+                isset($caller['file']) ? $caller['file'] : 'unknown',
+                $transactionId
+            );
+        } catch (Exception $e) {
+            // Fallback silencioso
+            @error_log("WatchDog logWithLevel Error: " . $e->getMessage());
+        }
     }
     
     /**
