@@ -260,10 +260,13 @@ class Servicio {
 							'db_transaction_id' => $conn->insert_id
 						], $this->transactionId);
 					} else {
-						file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] ❌ INSERT transactions FALLÓ: " . $conn->error . "\n", FILE_APPEND | LOCK_EX);
-						watchDog::logError('Error al insertar transacción', [
-							'error' => $conn->error,
-							'errno' => $conn->errno
+					file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] ❌ INSERT transactions FALLÓ: " . $conn->error . "\n", FILE_APPEND | LOCK_EX);
+					watchDog::logError('Error al insertar transacción', [
+						'error' => $conn->error,
+						'errno' => $conn->errno
+					], $this->transactionId);
+				}
+
 			$insertarParqueo=" INSERT INTO parking
 			(date,startTime,endTime,time,platform,tipo,user,plate,place,minPrice,country,idCompany,free,count,authorization)
 			VALUES(NOW(),'$fechaInicioParqueo','$fechaFinParqueo',$tiempoParqueo,1,'Parquimetro','0','Parquimetro','$zonaId','$minPrice','COS','$idCompany',0,1,'$nroTransaccion')";

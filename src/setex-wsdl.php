@@ -115,22 +115,31 @@ try {
     <!-- Service - MISMA URL -->
     <service name="SETEX">
         <port name="SetexPort" binding="tns:SetexBinding">
-            <soap:address location="http://' . ($_SERVER['SERVER_NAME'] ?? 'localhost') . ($_SERVER['REQUEST_URI'] ?? '/') . '"/>
+            <soap:address location="http://' . ($_SERVER['SERVER_NAME'] ?? 'localhost') . strtok($_SERVER['REQUEST_URI'] ?? '/', '?') . '"/>
         </port>
     </service>
 
 </definitions>';
 
     // Si se solicita WSDL, devolverlo
-    if (isset($_GET['wsdl'])) {
+    if (isset($_GET['wsdl']) && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
         header('Content-Type: text/xml; charset=utf-8');
         echo $wsdl_content;
         exit;
     }
 
+    // Responder a GET sin body (acceso desde navegador)
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
+        header('Content-Type: text/xml; charset=utf-8');
+        echo '<?xml version="1.0" encoding="UTF-8"?>';
+        echo '<service><status>online</status><version>' . Servicio::versionId . '</version>';
+        echo '<wsdl>' . (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . ($_SERVER['SERVER_NAME'] ?? '') . ($_SERVER['PHP_SELF'] ?? '') . '?wsdl</wsdl></service>';
+        exit;
+    }
+
     // Crear servidor SOAP nativo CON compatibilidad nuSOAP
     $server = new SoapServer(null, [
-        'location' => 'http://' . ($_SERVER['SERVER_NAME'] ?? 'localhost') . ($_SERVER['REQUEST_URI'] ?? '/'),
+        'location' => 'http://' . ($_SERVER['SERVER_NAME'] ?? 'localhost') . strtok($_SERVER['REQUEST_URI'] ?? '/', '?'),
         'uri' => 'urn:setexwsdl',
         'encoding' => 'UTF-8',
         'soap_version' => SOAP_1_1,
