@@ -1,0 +1,32 @@
+# SETEX - Archivos a ignorar por Git
+
+# Archivo de configuración con datos sensibles
+.env
+
+# Logs del sistema
+logs/*.txt
+logs/*.log
+
+# Archivos temporales del IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de backup
+*.bak
+*.backup
+*.sql
+
+# Cache y archivos temporales
+cache/
+temp/
+tmp/
+
+# Archivos de test específicos del entorno
+test-local.php
+config-local.php

@@ -7,14 +7,14 @@ ini_set('display_errors', '0');
 include_once('setex-config.php');
 
 // Log de inicio - MÉTODO NATIVO
-file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+@file_put_contents(dirname(__DIR__) . '/logs/native_soap_debug.txt', 
     "NATIVE SOAP - Servicio iniciado (MISMA URL) - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
 try {
     // Cargar clase de servicio
     require_once("servicio.class.php");
     
-    file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+    @file_put_contents(dirname(__DIR__) . '/logs/native_soap_debug.txt', 
         "NATIVE SOAP - servicio.class.php cargado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
     // Log con watchDog si está disponible
@@ -138,26 +138,26 @@ try {
         'use' => SOAP_ENCODED
     ]);
 
-    file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+    @file_put_contents(dirname(__DIR__) . '/logs/native_soap_debug.txt', 
         "NATIVE SOAP - SoapServer creado (RPC/encoded compatible) - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
     // Clase wrapper - MISMA LÓGICA DE NEGOCIO
     class SetexSoapService {
         
         public function getVersion($valor) {
-            file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+            @file_put_contents(dirname(__DIR__) . '/logs/native_soap_debug.txt', 
                 "NATIVE SOAP - getVersion llamado con valor: $valor - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
                 
             try {
                 // getVersion es una función independiente, no método de clase
                 $resultado = getVersion();
                 
-                file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+                @file_put_contents(dirname(__DIR__) . '/logs/native_soap_debug.txt', 
                     "NATIVE SOAP - getVersion resultado: " . print_r($resultado, true) . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
                 
                 return $resultado;
             } catch (Exception $e) {
-                file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+                @file_put_contents(dirname(__DIR__) . '/logs/native_soap_debug.txt', 
                     "NATIVE SOAP - getVersion ERROR: " . $e->getMessage() . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
                 return ['codigoRespuesta' => 'ERROR: ' . $e->getMessage()];
             }
@@ -167,7 +167,7 @@ try {
                                      $importeParqueo, $passwordCps, $fechaInicioParqueo, 
                                      $fechaFinParqueo, $nroTransaccion, $fechaTransaccion) {
             
-            file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+            @file_put_contents(dirname(__DIR__) . '/logs/native_soap_debug.txt', 
                 "NATIVE SOAP - iniciarParqueo llamado - Token: $token, PlazaId: $plazaId - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
                 
             try {
@@ -178,12 +178,12 @@ try {
                     $fechaFinParqueo, $nroTransaccion, $fechaTransaccion
                 );
                 
-                file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+                @file_put_contents(dirname(__DIR__) . '/logs/native_soap_debug.txt', 
                     "NATIVE SOAP - iniciarParqueo resultado: " . print_r($resultado, true) . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
                 
                 return $resultado;
             } catch (Exception $e) {
-                file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+                @file_put_contents(dirname(__DIR__) . '/logs/native_soap_debug.txt', 
                     "NATIVE SOAP - iniciarParqueo ERROR: " . $e->getMessage() . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
                 return ['codigoRespuesta' => 51]; // Mismo código de error que antes
             }
@@ -193,7 +193,7 @@ try {
     // Registrar la clase en el servidor SOAP
     $server->setClass('SetexSoapService');
 
-    file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+    @file_put_contents(dirname(__DIR__) . '/logs/native_soap_debug.txt', 
         "NATIVE SOAP - Clase registrada, procesando request - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
     // Capturar XML de entrada para debugging - MISMO FORMATO
@@ -204,11 +204,11 @@ try {
     
     if (!empty($rawPostData)) {
         // Logs compatibles con formato anterior
-        file_put_contents('/var/www/html/serviceSetex/logs/raw_xml_debug_' . date('Y-m-d') . '.txt', 
+        @file_put_contents(dirname(__DIR__) . '/logs/raw_xml_debug_' . date('Y-m-d') . '.txt', 
             "[" . date('Y-m-d H:i:s') . "] NATIVE SOAP RAW XML:\n" . $rawPostData . "\n\n", FILE_APPEND);
             
         // Log adicional para debugging nativo
-        file_put_contents('/var/www/html/serviceSetex/logs/native_soap_raw_' . date('Y-m-d') . '.txt', 
+        @file_put_contents(dirname(__DIR__) . '/logs/native_soap_raw_' . date('Y-m-d') . '.txt', 
             "[" . date('Y-m-d H:i:s') . "] MIGRATED SOAP RAW XML:\n" . $rawPostData . "\n\n", FILE_APPEND);
     }
 
@@ -226,13 +226,13 @@ try {
         ], $transactionId);
     }
 
-    file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+    @file_put_contents(dirname(__DIR__) . '/logs/native_soap_debug.txt', 
         "NATIVE SOAP - Iniciando server->handle() - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
     // Procesar la request SOAP
     $server->handle($rawPostData);
 
-    file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+    @file_put_contents(dirname(__DIR__) . '/logs/native_soap_debug.txt', 
         "NATIVE SOAP - Request procesado exitosamente - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
 } catch (Exception $e) {
@@ -248,7 +248,7 @@ try {
         ], $transactionId);
     }
     
-    file_put_contents('/var/www/html/serviceSetex/logs/native_soap_debug.txt', 
+    @file_put_contents(dirname(__DIR__) . '/logs/native_soap_debug.txt', 
         "NATIVE SOAP - ERROR CRÍTICO: " . $e->getMessage() . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
     
     // Responder con error SOAP válido - MISMO FORMATO

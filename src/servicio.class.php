@@ -31,6 +31,7 @@ class Servicio {
 	//Parametros Globales
 	var $error = array();
 	var $parametrosWS = array();
+	var $transactionId = null;
 
 	function __construct() {
 		global $conn;
@@ -197,6 +198,44 @@ class Servicio {
 			}
 			#Pagos con tarjeta de credito
 
+				$debugLog = '../logs/iniciarParqueo_debug_' . date('Y-m-d') . '.txt';
+
+			// Verificar si ya existe un registro con el mismo nroTransaccion (idempotencia)
+			$stmtCheck = $conn->prepare(
+				"SELECT COUNT(*) as total FROM transactions WHERE authorization=? AND idCompany=? AND country='COS' AND type='5'"
+			);
+			$stmtCheck->bind_param("ss", $nroTransaccion, $idCompany);
+			$stmtCheck->execute();
+			$resultadoCheck = $stmtCheck->get_result();
+
+			if ($resultadoCheck === false) {
+				$errMsg = $conn->error;
+				file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] ❌ Error en check duplicado: $errMsg\n", FILE_APPEND | LOCK_EX);
+				watchDog::logError('Error en verificación de duplicado en transactions', [
+					'error' => $errMsg,
+					'nro_transaccion' => $nroTransaccion
+				], $this->transactionId);
+				$obj->codigoRespuesta = self::ERR_QUERY;
+				return $obj;
+			}
+
+			$fila = $resultadoCheck->fetch_assoc();
+			$stmtCheck->close();
+
+			if ($fila['total'] > 0) {
+				file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] ⚠️ DUPLICADO detectado - nroTransaccion=$nroTransaccion idCompany=$idCompany total={$fila['total']} - retornando aprobado sin insertar\n", FILE_APPEND | LOCK_EX);
+				watchDog::logWarning('Transacción duplicada detectada, retornando aprobado', [
+					'nro_transaccion' => $nroTransaccion,
+					'id_company' => $idCompany,
+					'registros_encontrados' => $fila['total']
+				], $this->transactionId);
+				$conn->close();
+				$obj->codigoRespuesta = self::TARJETA_APROBADO;
+				return $obj;
+			}
+
+			file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] ✅ Sin duplicado - procediendo a insertar nroTransaccion=$nroTransaccion\n", FILE_APPEND | LOCK_EX);
+
 			watchDog::logInfo('Preparando inserción de transacción', [
 				'company_id' => $idCompany,
 				'min_price' => $minPrice,
@@ -216,19 +255,15 @@ class Servicio {
 			$ejecutarInsert = $conn->query($insertarParqueo);
 			
 			if ($ejecutarInsert) {
-				watchDog::logSuccess('Transacción insertada correctamente', [
-					'db_transaction_id' => $conn->insert_id,
-					'transaction_id' => $this->transactionId
-				], $this->transactionId);
-			} else {
-				watchDog::logError('Error al insertar transacción', [
-					'error' => $conn->error,
-					'errno' => $conn->errno,
-					'query' => $insertarParqueo,
-					'transaction_id' => $this->transactionId
-				], $this->transactionId);
-			}
-
+						file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] ✅ INSERT transactions OK - id=" . $conn->insert_id . "\n", FILE_APPEND | LOCK_EX);
+						watchDog::logSuccess('Transacción insertada correctamente', [
+							'db_transaction_id' => $conn->insert_id
+						], $this->transactionId);
+					} else {
+						file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] ❌ INSERT transactions FALLÓ: " . $conn->error . "\n", FILE_APPEND | LOCK_EX);
+						watchDog::logError('Error al insertar transacción', [
+							'error' => $conn->error,
+							'errno' => $conn->errno
 			$insertarParqueo=" INSERT INTO parking
 			(date,startTime,endTime,time,platform,tipo,user,plate,place,minPrice,country,idCompany,free,count,authorization)
 			VALUES(NOW(),'$fechaInicioParqueo','$fechaFinParqueo',$tiempoParqueo,1,'Parquimetro','0','Parquimetro','$zonaId','$minPrice','COS','$idCompany',0,1,'$nroTransaccion')";
