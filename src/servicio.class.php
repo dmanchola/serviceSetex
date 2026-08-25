@@ -99,7 +99,8 @@ class Servicio {
 	 */
 	function iniciarParqueoSetex($parametros=array()) {
 		global $conn;
-		set_time_limit(0);
+		// 30s es suficiente para 2 INSERTs; evita acumulación de procesos colgados
+		set_time_limit(30);
 		$objLogWs = new watchDog();
 		$obj= new stdClass();
 		$obj->codigoRespuesta="";
@@ -164,6 +165,16 @@ class Servicio {
 				'received_params' => array_keys($this->parametrosWS),
 				'transaction_id' => $this->transactionId
 			], $this->transactionId);
+			return $obj;
+		}
+
+		// Modo contingencia: responde OK sin tocar la BD
+		if (SetexEnvLoader::getBool('SETEX_CONTINGENCY_MODE', false)) {
+			watchDog::logWarning('CONTINGENCY MODE activo - retornando aprobado sin DB', [
+				'nro_transaccion' => $nroTransaccion,
+				'plaza_id' => $plazaId
+			], $this->transactionId);
+			$obj->codigoRespuesta = self::TARJETA_APROBADO;
 			return $obj;
 		}
 
