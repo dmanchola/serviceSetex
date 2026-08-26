@@ -15,6 +15,8 @@ include_once('setex-config.php');
             return false;
         }
         else {
+            // Costa Rica es UTC-6 sin horario de verano
+            $conn->query("SET time_zone = '-06:00'");
             return $conn;
         }
     }
