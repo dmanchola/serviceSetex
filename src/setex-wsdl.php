@@ -48,14 +48,14 @@ try {
     <types>
         <xsd:schema targetNamespace="urn:setexwsdl">
             <xsd:complexType name="codigoRespuestaComplex">
-                <xsd:all>
+                <xsd:sequence>
                     <xsd:element name="codigoRespuesta" type="xsd:int"/>
-                </xsd:all>
+                </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="codigoRespuestaStringComplex">
-                <xsd:all>
+                <xsd:sequence>
                     <xsd:element name="codigoRespuesta" type="xsd:string"/>
-                </xsd:all>
+                </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
     </types>
