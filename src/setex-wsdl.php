@@ -251,8 +251,16 @@ try {
     @file_put_contents(SOAP_DEBUG_LOG, 
         "NATIVE SOAP - Iniciando server->handle() - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
-    // Procesar la request SOAP
+    // getVersion en V1 NuSOAP usaba <return xsi:type="SOAP-ENC:Struct"> por registro incorrecto
+    // iniciarParqueo en V1 NuSOAP usaba prefijo tns: para el tipo (urn:setexwsdl)
+    ob_start();
     $server->handle($rawPostData);
+    $soapOutput = ob_get_clean();
+    $soapOutput = preg_replace('/<getVersionReturn[^>]*>/', '<return xsi:type="SOAP-ENC:Struct">', $soapOutput);
+    $soapOutput = str_replace('</getVersionReturn>', '</return>', $soapOutput);
+    $soapOutput = str_replace('xmlns:ns1="urn:setexwsdl"', 'xmlns:tns="urn:setexwsdl" xmlns:ns1="urn:setexwsdl"', $soapOutput);
+    $soapOutput = str_replace('xsi:type="ns1:codigoRespuesta', 'xsi:type="tns:codigoRespuesta', $soapOutput);
+    echo $soapOutput;
 
     @file_put_contents(SOAP_DEBUG_LOG, 
         "NATIVE SOAP - Request procesado exitosamente - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);

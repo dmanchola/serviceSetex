@@ -1,0 +1,24 @@
+<?php
+include_once('setex-config.php');
+include_once(LIBSPATH.'adodb/adodb.inc.php');
+
+    function conexion() {
+        $dbvendor = "mysql";
+        $dbhost = "localhost";
+        $dbuser = "root";
+        $dbpassword = "S0p0rt310";
+        $dbname = "alpha_msj";
+
+        $conn = ADONewConnection($dbvendor);  
+        $conn->Connect($dbhost, $dbuser, $dbpassword, $dbname);
+        $isConnected = $conn->IsConnected();
+
+        if ($isConnected == true) {   
+            return $conn;
+        } else {
+             echo "Error in connection: " . $conn->ErrorNo();
+            return false;
+        }
+    }
+
+?>
