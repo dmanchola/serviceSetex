@@ -209,7 +209,8 @@ class Servicio {
 			}
 			#Pagos con tarjeta de credito
 
-				$debugLog = '../logs/iniciarParqueo_debug_' . date('Y-m-d') . '.txt';
+			$logEnabled = SetexEnvLoader::getBool('SETEX_LOG_ENABLED', true);
+				$debugLog = $logEnabled ? '../logs/iniciarParqueo_debug_' . date('Y-m-d') . '.txt' : '/dev/null';
 
 			// Verificar si ya existe un registro con el mismo nroTransaccion (idempotencia)
 			$stmtCheck = $conn->prepare(
@@ -422,8 +423,8 @@ function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 		$tiempoParqueo="",$importeParqueo="",$passwordCps="",
 		$fechaInicioParqueo="",$fechaFinParqueo="",$nroTransaccion="",$fechaTransaccion=""){
 	
-	// LOG INMEDIATO para debug
-	$debugLog = '../logs/iniciarParqueo_debug_' . date('Y-m-d') . '.txt';
+	$logEnabled = SetexEnvLoader::getBool('SETEX_LOG_ENABLED', true);
+	$debugLog = $logEnabled ? '../logs/iniciarParqueo_debug_' . date('Y-m-d') . '.txt' : '/dev/null';
 	file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] === FUNCIÓN iniciarParqueo INICIADA ===\n", FILE_APPEND | LOCK_EX);
 	
 	// 🔍 DEBUG: Capturar parámetros RAW tal como llegan
@@ -546,9 +547,7 @@ function iniciarParqueo($token="",$plazaId="",$zonaId="",$identificador="",
 	// LOG de parámetros finales
 	file_put_contents($debugLog, "[" . date('Y-m-d H:i:s') . "] Parámetros finales: " . json_encode($parametros) . "\n", FILE_APPEND | LOCK_EX);
 
-	$enableLog = SetexEnvLoader::getBool('SETEX_LOG_ENABLED', false); // Configurable desde .env
-
-	if ($enableLog) {
+	if ($logEnabled) {
 		$transactionId = watchDog::generateTransactionId();
 		watchDog::logInfo('Parámetros recibidos en iniciarParqueo', 
 			array_merge($parametros, ['transaction_id' => $transactionId]), 

@@ -36,7 +36,7 @@ Class watchDog {
      * Escribe en el log unificado - COMPLETAMENTE OPCIONAL 
      */
     static function writeUnifiedLog($level, $message, $context, $line, $file, $transactionId = null) {
-        // Completamente opcional - si falla, no debe afectar nada
+        if (!SetexEnvLoader::getBool('SETEX_LOG_ENABLED', true)) return;
         try {
             $logsPath = '../logs';
             if (function_exists('getenv')) {
