@@ -9,29 +9,8 @@ include_once('setex-config.php');
 define('SOAP_LOGGING', SetexEnvLoader::getBool('SETEX_LOG_ENABLED', true));
 define('SOAP_DEBUG_LOG', SOAP_LOGGING ? dirname(__DIR__) . '/logs/native_soap_debug.txt' : '/dev/null');
 
-// Log de inicio - MÉTODO NATIVO
-@file_put_contents(SOAP_DEBUG_LOG, 
-    "NATIVE SOAP - Servicio iniciado (MISMA URL) - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-
 try {
-    // Cargar clase de servicio
     require_once("servicio.class.php");
-    
-    @file_put_contents(SOAP_DEBUG_LOG, 
-        "NATIVE SOAP - servicio.class.php cargado - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-
-    // Log con watchDog si está disponible
-    if (function_exists('watchDog::logInfo')) {
-        $transactionId = watchDog::generateTransactionId();
-        watchDog::logInfo('NATIVE SOAP Service iniciado', [
-            'migration' => 'nuSOAP -> PHP SOAP nativo',
-            'php_version' => PHP_VERSION,
-            'soap_enabled' => extension_loaded('soap') ? 'YES' : 'NO',
-            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'N/A',
-            'remote_addr' => $_SERVER['REMOTE_ADDR'] ?? 'N/A',
-            'transaction_id' => $transactionId
-        ], $transactionId);
-    }
 
     // Verificar si la extensión SOAP está disponible
     if (!extension_loaded('soap')) {
@@ -152,27 +131,15 @@ try {
         'cache_wsdl' => WSDL_CACHE_MEMORY,
     ]);
 
-    @file_put_contents(SOAP_DEBUG_LOG, 
-        "NATIVE SOAP - SoapServer creado (RPC/encoded compatible) - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-
     // Clase wrapper - MISMA LÓGICA DE NEGOCIO
     class SetexSoapService {
         
         public function getVersion($valor) {
-            @file_put_contents(SOAP_DEBUG_LOG, 
-                "NATIVE SOAP - getVersion llamado con valor: $valor - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-                
             try {
                 // getVersion es una función independiente, no método de clase
-                $resultado = getVersion();
-                
-                @file_put_contents(SOAP_DEBUG_LOG, 
-                    "NATIVE SOAP - getVersion resultado: " . print_r($resultado, true) . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-                
-                return $resultado;
+                return getVersion();
             } catch (Exception $e) {
-                @file_put_contents(SOAP_DEBUG_LOG, 
-                    "NATIVE SOAP - getVersion ERROR: " . $e->getMessage() . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+                @file_put_contents(SOAP_DEBUG_LOG, "[" . date('Y-m-d H:i:s') . "] getVersion ERROR: " . $e->getMessage() . "\n", FILE_APPEND);
                 return ['codigoRespuesta' => 'ERROR: ' . $e->getMessage()];
             }
         }
@@ -181,18 +148,12 @@ try {
                                      $importeParqueo, $passwordCps, $fechaInicioParqueo,
                                      $fechaFinParqueo, $nroTransaccion, $fechaTransaccion) {
 
-            @file_put_contents(SOAP_DEBUG_LOG,
-                "NATIVE SOAP - iniciarParqueo llamado - Token: $token, PlazaId: $plazaId - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-
             try {
                 $r = iniciarParqueo(
                     $token, $plazaId, $zonaId, $identificador, $tiempoParqueo,
                     $importeParqueo, $passwordCps, $fechaInicioParqueo,
                     $fechaFinParqueo, $nroTransaccion, $fechaTransaccion
                 );
-
-                @file_put_contents(SOAP_DEBUG_LOG,
-                    "NATIVE SOAP - iniciarParqueo resultado: " . print_r($r, true) . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
                 $codigo = is_object($r) ? $r->codigoRespuesta : (is_array($r) ? $r['codigoRespuesta'] : $r);
 
@@ -201,8 +162,7 @@ try {
                 return $out;
 
             } catch (Throwable $e) {
-                @file_put_contents(SOAP_DEBUG_LOG,
-                    "NATIVE SOAP - iniciarParqueo ERROR: " . $e->getMessage() . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+                @file_put_contents(SOAP_DEBUG_LOG, "[" . date('Y-m-d H:i:s') . "] iniciarParqueo ERROR: " . $e->getMessage() . "\n", FILE_APPEND);
                 error_log('[setex] iniciarParqueo: ' . $e->getMessage());
 
                 $out = new stdClass();
@@ -215,41 +175,10 @@ try {
     // Registrar la clase en el servidor SOAP
     $server->setClass('SetexSoapService');
 
-    @file_put_contents(SOAP_DEBUG_LOG, 
-        "NATIVE SOAP - Clase registrada, procesando request - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-
-    // Capturar XML de entrada para debugging - MISMO FORMATO
     $rawPostData = file_get_contents('php://input');
     if (empty($rawPostData) && isset($GLOBALS['HTTP_RAW_POST_DATA'])) {
         $rawPostData = $GLOBALS['HTTP_RAW_POST_DATA'];
     }
-    
-    if (!empty($rawPostData)) {
-        if (SOAP_LOGGING) {
-            @file_put_contents(dirname(__DIR__) . '/logs/raw_xml_debug_' . date('Y-m-d') . '.txt', 
-                "[" . date('Y-m-d H:i:s') . "] NATIVE SOAP RAW XML:\n" . $rawPostData . "\n\n", FILE_APPEND);
-                
-            @file_put_contents(dirname(__DIR__) . '/logs/native_soap_raw_' . date('Y-m-d') . '.txt', 
-                "[" . date('Y-m-d H:i:s') . "] MIGRATED SOAP RAW XML:\n" . $rawPostData . "\n\n", FILE_APPEND);
-        }
-    }
-
-    // Log de debugging igual que antes
-    if (function_exists('watchDog::logDebug') && !empty($rawPostData)) {
-        $transactionId = watchDog::generateTransactionId();
-        @watchDog::logDebug('NATIVE SOAP Request recibido', [
-            'migration_status' => 'nuSOAP -> PHP SOAP nativo',
-            'content_type' => $_SERVER['CONTENT_TYPE'] ?? 'N/A',
-            'content_length' => $_SERVER['CONTENT_LENGTH'] ?? 0,
-            'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'N/A',
-            'raw_data_length' => strlen($rawPostData),
-            'raw_data_sample' => substr($rawPostData, 0, 200),
-            'transaction_id' => $transactionId
-        ], $transactionId);
-    }
-
-    @file_put_contents(SOAP_DEBUG_LOG, 
-        "NATIVE SOAP - Iniciando server->handle() - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
     // getVersion en V1 NuSOAP usaba <return xsi:type="SOAP-ENC:Struct"> por registro incorrecto
     // iniciarParqueo en V1 NuSOAP usaba prefijo tns: para el tipo (urn:setexwsdl)
@@ -262,24 +191,8 @@ try {
     $soapOutput = str_replace('xsi:type="ns1:codigoRespuesta', 'xsi:type="tns:codigoRespuesta', $soapOutput);
     echo $soapOutput;
 
-    @file_put_contents(SOAP_DEBUG_LOG, 
-        "NATIVE SOAP - Request procesado exitosamente - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-
 } catch (Exception $e) {
-    // Manejo de errores compatible con nuSOAP
-    if (function_exists('watchDog::logError')) {
-        $transactionId = watchDog::generateTransactionId();
-        watchDog::logError('Error crítico en NATIVE SOAP Service', [
-            'migration_note' => 'Error durante migración nuSOAP -> SOAP nativo',
-            'error_message' => $e->getMessage(),
-            'error_file' => $e->getFile(),
-            'error_line' => $e->getLine(),
-            'transaction_id' => $transactionId
-        ], $transactionId);
-    }
-    
-    @file_put_contents(SOAP_DEBUG_LOG, 
-        "NATIVE SOAP - ERROR CRÍTICO: " . $e->getMessage() . " - " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+    @file_put_contents(SOAP_DEBUG_LOG, "[" . date('Y-m-d H:i:s') . "] ERROR CRÍTICO: " . $e->getMessage() . "\n", FILE_APPEND);
     
     // Responder con error SOAP válido - MISMO FORMATO
     header('Content-Type: text/xml; charset=utf-8');

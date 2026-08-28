@@ -194,6 +194,20 @@ Class watchDog {
         $context = ['token_provided' => !empty($token), 'success' => $success];
         self::logWithLevel($level, $message, $context, $file);
     }
+
+    // Escribe una línea de inserción exitosa al log diario de parqueos
+    static function logInsert($data = []) {
+        if (!SetexEnvLoader::getBool('SETEX_LOG_ENABLED', true)) return;
+        try {
+            $logsPath = '../logs';
+            $envPath = @getenv('SETEX_LOGS_PATH');
+            if (!empty($envPath)) $logsPath = $envPath;
+            $logFile = rtrim($logsPath, '/') . '/iniciarParqueo_debug_' . date('Y-m-d') . '.txt';
+            $line = '[' . date('Y-m-d H:i:s') . '] INSERT OK';
+            foreach ($data as $k => $v) $line .= " $k=$v";
+            @file_put_contents($logFile, $line . "\n", FILE_APPEND | LOCK_EX);
+        } catch (Exception $e) {}
+    }
 }
 
 ?>
