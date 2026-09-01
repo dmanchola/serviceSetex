@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:tns="urn:setexwsdl"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+             targetNamespace="urn:setexwsdl">
+
+  <types>
+    <xsd:schema targetNamespace="urn:setexwsdl">
+      <xsd:import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+      <xsd:complexType name="codigoRespuestaComplex">
+        <xsd:all>
+          <xsd:element name="codigoRespuesta" type="xsd:int"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="codigoRespuestaStringComplex">
+        <xsd:all>
+          <xsd:element name="codigoRespuesta" type="xsd:string"/>
+        </xsd:all>
+      </xsd:complexType>
+    </xsd:schema>
+  </types>
+
+  <message name="getVersionRequest">
+    <part name="valor" type="xsd:string"/>
+  </message>
+  <message name="getVersionResponse">
+    <part name="getVersionReturn" type="tns:codigoRespuestaStringComplex"/>
+  </message>
+
+  <message name="iniciarParqueoRequest">
+    <part name="token" type="xsd:string"/>
+    <part name="plazaId" type="xsd:int"/>
+    <part name="zonaId" type="xsd:int"/>
+    <part name="identificador" type="xsd:string"/>
+    <part name="tiempoParqueo" type="xsd:int"/>
+    <part name="importeParqueo" type="xsd:int"/>
+    <part name="passwordCps" type="xsd:string"/>
+    <part name="fechaInicioParqueo" type="xsd:string"/>
+    <part name="fechaFinParqueo" type="xsd:string"/>
+    <part name="nroTransaccion" type="xsd:string"/>
+    <part name="fechaTransaccion" type="xsd:string"/>
+  </message>
+  <message name="iniciarParqueoResponse">
+    <part name="iniciarParqueoReturn" type="tns:codigoRespuestaComplex"/>
+  </message>
+
+  <portType name="SETEXPortType">
+    <operation name="getVersion">
+      <input message="tns:getVersionRequest"/>
+      <output message="tns:getVersionResponse"/>
+    </operation>
+    <operation name="iniciarParqueo">
+      <input message="tns:iniciarParqueoRequest"/>
+      <output message="tns:iniciarParqueoResponse"/>
+    </operation>
+  </portType>
+
+  <binding name="SETEXBinding" type="tns:SETEXPortType">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="getVersion">
+      <soap:operation soapAction="urn:setexwsdl#getVersion"/>
+      <input><soap:body use="encoded" namespace="urn:setexwsdl" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+      <output><soap:body use="encoded" namespace="urn:setexwsdl" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+    </operation>
+    <operation name="iniciarParqueo">
+      <soap:operation soapAction="urn:setexwsdl#iniciarParqueo"/>
+      <input><soap:body use="encoded" namespace="urn:setexwsdl" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+      <output><soap:body use="encoded" namespace="urn:setexwsdl" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+    </operation>
+  </binding>
+
+  <service name="SETEX">
+    <port name="SETEXPort" binding="tns:SETEXBinding">
+      <soap:address location="SETEX_ENDPOINT_PLACEHOLDER"/>
+    </port>
+  </service>
+</definitions>
